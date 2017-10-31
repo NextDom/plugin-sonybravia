@@ -7,5 +7,6 @@
 	"require" : "3.0",
 	"category" : "multimedia",
 	"hasDependency" : true,
+	"hasOwnDeamon" : 1,
 	"maxDependancyInstallTime" : 45
 }

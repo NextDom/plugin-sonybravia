@@ -131,9 +131,60 @@ foreach (jeedom::getConfiguration('eqLogic:category') as $key => $value) {
 			</div>
 			
 			<div class="form-group">
-				<label class="col-sm-2 control-label">{{Clé TV}}</label>
+				<label class="col-sm-2 control-label"></label>
 				<div class="col-sm-2">
-					<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="psk" placeholder="{{}}"/>
+					<a class="btn btn-success startdeamontv"><i class="fa fa-cogs"></i> {{Démarrer}}</a>
+					<script>
+						$('.startdeamontv').on('click', function () {
+						$.ajax({// fonction permettant de faire de l'ajax
+							type: "POST", // methode de transmission des données au fichier php
+							url: "plugins/sonybravia/core/ajax/sonybravia.ajax.php", // url du fichier php
+							data: {
+								action: "startdeamon",
+								ip : $( "input[data-l2key='ipadress']" ).value(),
+								mac : $( "input[data-l1key='logicalId']" ).value(),
+								psk : $( "input[data-l2key='psk']" ).value()
+							},
+							dataType: 'json',
+							error: function (request, status, error) {
+								handleAjaxError(request, status, error);
+							},
+							success: function (data) { // si l'appel a bien fonctionné
+								if (data.state != 'ok') {
+									$('#div_alert').showAlert({message: data.result, level: 'danger'});
+									return;
+								}
+								$('#div_alert').showAlert({message: '{{Réussie}}', level: 'success'});
+							}
+						});
+					});
+					</script>
+				</div>
+				<div class="col-sm-2">
+					<a class="btn btn-danger stopdeamontv"><i class="fa fa-cogs"></i> {{Arrêter}}</a>
+					<script>
+						$('.stopdeamontv').on('click', function () {
+						$.ajax({// fonction permettant de faire de l'ajax
+							type: "POST", // methode de transmission des données au fichier php
+							url: "plugins/sonybravia/core/ajax/sonybravia.ajax.php", // url du fichier php
+							data: {
+								action: "stopdeamon",
+								mac : $( "input[data-l1key='logicalId']" ).value()
+							},
+							dataType: 'json',
+							error: function (request, status, error) {
+								handleAjaxError(request, status, error);
+							},
+							success: function (data) { // si l'appel a bien fonctionné
+								if (data.state != 'ok') {
+									$('#div_alert').showAlert({message: data.result, level: 'danger'});
+									return;
+								}
+								$('#div_alert').showAlert({message: '{{Réussie}}', level: 'success'});
+							}
+						});
+					});
+					</script>
 				</div>
 			</div>
 			

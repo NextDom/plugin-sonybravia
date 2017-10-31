@@ -21,19 +21,23 @@ require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 class sonybravia extends eqLogic {
 	
 	public static function deamon_info() {
-		/*$return = array();
+		$return = array();
 		$return['log'] = 'sonybravia';
-		$return['state'] = 'nok';
-		$pid_file = '/tmp/sonybravia.pid';
-		if (file_exists($pid_file)) {
-			if (@posix_getsid(trim(file_get_contents($pid_file)))) {
-				$return['state'] = 'ok';
-			} else {
-				shell_exec('sudo rm -rf ' . $pid_file . ' 2>&1 > /dev/null;rm -rf ' . $pid_file . ' 2>&1 > /dev/null;');
-			}
-		}*/
-		$return['state'] = 'ok';
-		$return['launchable'] = 'ok';
+		$retour = true;
+		foreach (eqLogic::byType('sonybravia', true) as $eqLogic) {
+			//log::add('sonybravia', 'debug', sonybravia::tv_deamon_info("90:CD:B6:41:F5:2F"));
+			$_retour = sonybravia::tv_deamon_info($eqLogic->getLogicalId());
+			if (!$_retour)
+				$retour false;
+		}	
+		if($retour){
+			$return['state'] = 'ok';
+			$return['launchable'] = 'ok';
+		}
+		else{
+			$return['state'] = 'nok';
+			$return['launchable'] = 'ok';
+		}
 		return $return;
 	}
 	
@@ -59,19 +63,22 @@ class sonybravia extends eqLogic {
 	}
 	
 	public static function tv_deamon_info($mac){
-		$return = array();
-		$return['log'] = 'sonybravia';
-		$return['state'] = 'nok';
+		//$return = array();
+		$return = false; 
+		//$return['log'] = 'sonybravia';
+		//$return['state'] = 'nok';
 		$pid_file = '/tmp/sonybravia' . $mac . '.pid';
 		if (file_exists($pid_file)) {
 			if (@posix_getsid(trim(file_get_contents($pid_file)))) {
-				$return['state'] = 'ok';
+				//$return['state'] = 'ok';
+				$return = true;
 			} else {
 				shell_exec('sudo rm -rf ' . $pid_file . ' 2>&1 > /dev/null;rm -rf ' . $pid_file . ' 2>&1 > /dev/null;');
 			}
-		}*/
-		$return['state'] = 'ok';
-		$return['launchable'] = 'ok';
+		}
+		//$return = true;
+		//$return['state'] = 'ok';
+		//$return['launchable'] = 'ok';
 		return $return;
 	}
 	
@@ -100,7 +107,7 @@ class sonybravia extends eqLogic {
 			$i++;
 		}
 		if ($i >= 30) {
-			log::add('blea', 'error', __('Impossible de lancer le démon sonybravia, vérifiez la log',__FILE__), 'unableStartDeamon');
+			log::add('sonybravia', 'error', __('Impossible de lancer le démon sonybravia, vérifiez la log',__FILE__), 'unableStartDeamon');
 			return false;
 		}
 		message::removeAll('sonybravia', 'unableStartDeamon');
@@ -108,49 +115,8 @@ class sonybravia extends eqLogic {
 	}
 	
 	public static function deamon_start() {
-		/*foreach (eqLogic::byType('sonybravia', true) as $eqLogic) {
-			$ipadress = $eqLogic->getConfiguration('ipadress');
-			$psk = $eqLogic->getConfiguration('psk');
-			$mac = $eqLogic->getLogicalId();
-			self::tv_deamon_start($ipadress, $mac, $psk);
-			
-		}
-		
-		self::deamon_stop();
-		$deamon_info = self::deamon_info();
-		if ($deamon_info['launchable'] != 'ok') {
-			throw new Exception(__('Veuillez vérifier la configuration', __FILE__));
-		}
-		$sonybravia_path = realpath(dirname(__FILE__) . '/../../resources');
-		$cmd = 'sudo /usr/bin/python3 ' . $sonybravia_path . '/sonybravia.py';
-		$cmd .= ' --tvip ' . log::convertLogLevel(log::getLogLevel('sonybravia'));
-		$cmd .= ' --mac ' . $port;
-		$cmd .= ' --psk ' . config::byKey('socketport', 'blea');
-		$cmd .= ' --sockethost 127.0.0.1';
-		$cmd .= ' --jeedomadress ' . network::getNetworkAccess('internal', 'proto:127.0.0.1:port:comp') . '/plugins/sonybravia/core/api/sonybravia.api.php';
-		$cmd .= ' --apikey ' . jeedom::getApiKey('sonybravia');
-		log::add('sonybravia', 'info', 'Lancement démon sonybravia : ' . $cmd);
-		$result = exec($cmd . ' >> ' . log::getPathToLog('sonybravia') . ' 2>&1 &');
-		$i = 0;
-		while ($i < 30) {
-			$deamon_info = self::deamon_info();
-			if ($deamon_info['state'] == 'ok') {
-				break;
-			}
-			sleep(1);
-			$i++;
-		}
-		if ($i >= 30) {
-			log::add('blea', 'error', __('Impossible de lancer le démon sonybravia, vérifiez la log',__FILE__), 'unableStartDeamon');
-			return false;
-		}
-		message::removeAll('sonybravia', 'unableStartDeamon');*/
 		return true;
 	}
-	
-	
-	
-	
 	/*     * *************************Attributs****************************** */
 
 	/*     * ***********************Methode static*************************** */
@@ -165,7 +131,7 @@ class sonybravia extends eqLogic {
 	
 
 	public static function cron() {
-		foreach (eqLogic::byType('sonybravia', true) as $eqLogic) {
+		/*foreach (eqLogic::byType('sonybravia', true) as $eqLogic) {
 			$autorefresh = $eqLogic->getConfiguration('autorefresh');
 			if ($autorefresh != '') {
 				try {
@@ -177,7 +143,7 @@ class sonybravia extends eqLogic {
 					log::add('sonybravia', 'error', __('Expression cron non valide pour ', __FILE__) . $eqLogic->getHumanName() . ' : ' . $autorefresh);
 				}
 			}
-		}
+		}*/
 	}
 	
 	public static function deadCmd() {
@@ -202,7 +168,7 @@ class sonybravia extends eqLogic {
 	}
 
 	/*     * *********************Methode d'instance************************* */
-	public function refresh() {
+	/*public function refresh() {
 		try {
 			foreach ($this->getCmd('info') as $cmd) {
 				if ($cmd->getConfiguration('calcul') == '' || $cmd->getConfiguration('sonybraviaAction', 0) != '0') {
@@ -216,7 +182,7 @@ class sonybravia extends eqLogic {
 		} catch (Exception $exc) {
 			log::add('sonybravia', 'error', __('Erreur pour ', __FILE__) . $eqLogic->getHumanName() . ' : ' . $exc->getMessage());
 		}
-	}
+	}*/
 
 	public function postSave() {
 		$refresh = $this->getCmd(null, 'refresh');

@@ -27,6 +27,11 @@ try {
 		ajax::success();
 	}
 	
+	if (init('action') == 'stopdeamon') {
+		sonybravia::tv_deamon_stop(init('mac'));
+		ajax::success();
+	}
+	
 	throw new Exception('Aucune methode correspondante');
 	/*     * *********Catch exeption*************** */
 } catch (Exception $e) {

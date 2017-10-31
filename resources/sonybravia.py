@@ -16,6 +16,7 @@ import sys
 import time
 import threading
 from optparse import OptionParser
+from datetime import datetime
 import signal
 import subprocess
 
@@ -40,11 +41,17 @@ class SonyBravia:
 		self._braviainstance = BraviaRC(self._ipadress, self._psk, self._macadress)
 
 	def run(self):
+		Donnees = {}
+		_Donnees = {}
+		_RAZ = datetime.now()
+		_RazCalcul = 0
+		_Separateur = "&"
+		_SendData = ""
 		def target():
 			self.process = None
 			#logger.debug("Thread started, timeout = " + str(timeout)+", command : "+str(self.cmd))
-			self.process = subprocess.Popen(self.cmd, shell=True)
-			#print self.cmd
+			self.process = subprocess.Popen(self.cmd + _SendData, shell=True)
+			#print(self.cmd)
 			self.process.communicate()
 			#logger.debug("Return code: " + str(self.process.returncode))
 			#logger.debug("Thread finished")
@@ -63,9 +70,17 @@ class SonyBravia:
 				self._log.warning("Thread not alive")
 		tvstatus = ""
 		while(1):
+			_RazCalcul = datetime.now() - _RAZ
+			if(_RazCalcul.seconds > 3600):
+				_RAZ = datetime.now()
+				for cle, valeur in Donnees.items():
+					Donnees.pop(cle)
+					_Donnees.pop(cle)
+			_SendData = ""
 			try:
 				tvstatus = self._braviainstance.get_power_status()
-				print('Status TV:', tvstatus)
+				Donnees["status"] = tvstatus
+				#print('Status TV:', tvstatus)
 			except KeyError:
 				print('TV not found')
 				sys.exit()
@@ -73,14 +88,35 @@ class SonyBravia:
 			if tvstatus == 'active':
 			#print(json.dumps(test, indent=2))
 				tvinfo = self._braviainstance.get_system_info()
-				print('TV model:', tvinfo['model'])    
+				#print('TV model:', tvinfo['model'])
+				Donnees["model"] = tvinfo['model']
 				vol = self._braviainstance.get_volume_info()
-				print('Volume:', vol['volume'])
+				Donnees["volume"] = str(vol['volume'])
+				#print('Volume:', vol['volume'])
+				tvPlaying = self._braviainstance.get_playing_info()
+				print(self._braviainstance.get_playing_info())
+				if not tvPlaying:
+					print("Netflix")
+					Donnees["source"] = "Netflix"
+				else:
+					#print(tvPlaying['source'])
+					#print(tvPlaying['uri'])
+					Donnees["source"] = ((tvPlaying['source'])[-4:]).upper() + (tvPlaying['uri'])[-1:]
 			else:
 				print('TV status:', tvstatus) #status is standby net na het uitzetten, daarna niet meer bereikbaar
-			self.cmd = "curl -L -s -G --max-time 15 " + self._jeedomadress + " -d 'apikey=" + self._apikey + "&status=" + tvstatus + "'"
+			self.cmd = "curl -L -s -G --max-time 15 " + self._jeedomadress + " -d 'apikey=" + self._apikey + "&mac=" + self._macadress
+			#self.cmd = "curl -L -s -G --max-time 15 " + self._jeedomadress + " -d 'apikey=" + self._apikey + "&mac=" + self._macadress + "&model=" + tvinfo['model'] + "&status=" + tvstatus + "&vol=" + vol + "'"
 			#self.cmd = "curl -L -s -G --max-time 15 " + self._jeedomadress +"/plugins/sonybravia/core/php/jeesonybravia.php -d 'apikey=" + self._apikey + "&status=" + tvstatus + "'"
 			#cmd = 'nice -n 19 timeout 15 /usr/bin/php /var/www/html/plugins/sonybravia/core/class/../php/jeesonybravia.php api=' + self._apikey + " status=" + tvstatus
+			for cle, valeur in Donnees.items():
+				#if(cle in _Donnees):
+				#	if (Donnees[cle] != _Donnees[cle]):
+				_SendData += _Separateur + cle +'='+ valeur
+				_Donnees[cle] = valeur
+				#else:
+				#	_SendData += _Separateur + cle +'='+ valeur
+				#	_Donnees[cle] = valeur
+			_SendData += "'"
 			try:
 				thread = threading.Thread(target=target)
 				self.timer = threading.Timer(int(5), timer_callback)
@@ -89,7 +125,7 @@ class SonyBravia:
 				#response = urllib2.urlopen(self.cmd)
 			except Exception:
 				errorCom = "Connection error"
-			time.sleep(10)
+			time.sleep(2)
 
 	def exit_handler(self, *args):
 		self.terminate()
@@ -99,14 +135,15 @@ class SonyBravia:
 if __name__ == "__main__":
 	usage = "usage: %prog [options]"
 	parser = OptionParser(usage)
-	parser.add_option("-tvip", "--tvip", dest="ip", help="IP de la tv")
+	parser.add_option("-t", "--tvip", dest="ip", help="IP de la tv")
 	parser.add_option("-m", "--mac", dest="mac", help="IP de la tv")
 	parser.add_option("-s", "--psk", dest="psk", help="Cle")
 	parser.add_option("-k", "--apikey", dest="apikey", help="IP de la tv")
 	parser.add_option("-a", "--jeedomadress", dest="jeedomadress", help="IP de la tv")
-	if options.tvip:
+	(options, args) = parser.parse_args()
+	if options.ip:
 		try:
-			ip = options.tvip
+			ip = options.ip
 		except:
 			print('Erreur d ip de la tv')
 	if options.mac:
@@ -131,7 +168,8 @@ if __name__ == "__main__":
 			print('Erreur mac de la tv')
 	pid = str(os.getpid())
 	#file("/tmp/sony-bravia.pid", 'w').write("%s\n" % pid)
-	file = open("/tmp/sony-bravia_"+mac+".pid", "w")
+	tmpmac = mac.replace(":","")
+	file = open("/tmp/sony-bravia_"+tmpmac+".pid", "w")
 	file.write("%s\n" % pid) 
 	file.close()
 	sonybravia = SonyBravia(ip, mac, psk, apikey, jeedomadress)
