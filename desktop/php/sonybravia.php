@@ -49,8 +49,8 @@ foreach ($eqLogics as $eqLogic) {
    <a class="btn btn-success eqLogicAction pull-right" data-action="save"><i class="fa fa-check-circle"></i> {{Sauvegarder}}</a>
   <a class="btn btn-danger eqLogicAction pull-right" data-action="remove"><i class="fa fa-minus-circle"></i> {{Supprimer}}</a>
   <a class="btn btn-default eqLogicAction pull-right" data-action="configure"><i class="fa fa-cogs"></i> {{Configuration avancée}}</a>
-  <a class="btn btn-default eqLogicAction pull-right" data-action="copy"><i class="fa fa-files-o"></i> {{Dupliquer}}</a>
-  <a class="btn btn-default pull-right" id="bt_importEqLogic"><i class="fa fa-share"></i> {{Importer équipement}}</a>
+  <!--<a class="btn btn-default eqLogicAction pull-right" data-action="copy"><i class="fa fa-files-o"></i> {{Dupliquer}}</a>-->
+  <!--<a class="btn btn-default pull-right" id="bt_importEqLogic"><i class="fa fa-share"></i> {{Importer équipement}}</a>-->
   <ul class="nav nav-tabs" role="tablist">
     <li role="presentation"><a href="#" class="eqLogicAction" aria-controls="home" role="tab" data-toggle="tab" data-action="returnToThumbnailDisplay"><i class="fa fa-arrow-circle-left"></i></a></li>
     <li role="presentation" class="active"><a href="#eqlogictab" aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-tachometer"></i> {{Equipement}}</a></li>
@@ -205,10 +205,11 @@ foreach (jeedom::getConfiguration('eqLogic:category') as $key => $value) {
                 <th style="width: 50px;">#</th>
                 <th style="width: 230px;">{{Nom}}</th>
                 <th style="width: 110px;">{{Sous-Type}}</th>
-                <th>{{LogicalId}}</th>
-                <th style="width: 100px;">{{}}</th>
-                <th style="width: 200px;">{{Paramètres}}</th>
-                <th style="width: 100px;"></th>
+                <th>{{Information / Commande}}</th>
+                <!--<th style="width: 100px;">{{}}</th>-->
+                <th style="width: 300px;">{{Paramètres}}</th>
+                <th style="width: 150px;"></th>
+                <th style="width: 150px;"></th>
             </tr>
         </thead>
         <tbody>

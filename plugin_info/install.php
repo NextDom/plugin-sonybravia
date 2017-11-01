@@ -19,39 +19,23 @@
 require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
 
 function sonybravia_install() {
-
-	/*$cron = cron::byClassAndFunction('sony-bravia', 'cron');
-    if (!is_object($cron)) {
-        $cron = new cron();
-        $cron->setClass('sony-bravia');
-        $cron->setFunction('CalculateOtherStats');
-        $cron->setEnable(1);
-        $cron->setDeamon(0);
-        $cron->setSchedule('05 00 * * *');
-        $cron->save();
-    }*/
+	if (jeedom::isCapable('sudo')) {
+		exec(system::getCmdSudo() . ' chmod a+x ' . dirname(__FILE__) . '/../resources/install_apt.sh ' .' 2>&1 &');
+	}
+	else{
+		message::add('sonybravia', 'Erreur : Veuillez donner les droits sudo à Jeedom', null, null);
+	}
 }
 
 function sonybravia_update() {
 	message::add('sonybravia', 'Mise à jour en cours...', null, null);
-
-	/*$cron = cron::byClassAndFunction('sony-bravia', 'CalculateOtherStats');
-    if (!is_object($cron)) {
-        $cron = new cron();
-        $cron->setClass('sony-bravia');
-        $cron->setFunction('cron');
-        $cron->setEnable(1);
-        $cron->setDeamon(0);
-        $cron->setSchedule('05 00 * * *');
-        $cron->save();
-    }
-	else{
-		$cron->setSchedule('05 00 * * *');
-        $cron->save();
+	if (jeedom::isCapable('sudo')) {
+		exec(system::getCmdSudo() . ' chmod a+x ' . dirname(__FILE__) . '/../resources/install_apt.sh ' .' 2>&1 &');
 	}
-    $cron->stop();
-	*/
-	message::removeAll('sony-bravia');		
+	else{
+		message::add('sonybravia', 'Erreur : Veuillez donner les droits sudo à Jeedom', null, null);
+	}
+	message::removeAll('sonybravia');		
 	message::add('sonybravia', 'Mise à jour terminée', null, null);
 }
 

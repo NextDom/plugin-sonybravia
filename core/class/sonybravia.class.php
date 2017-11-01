@@ -33,6 +33,9 @@ class sonybravia extends eqLogic {
 	}
 	
 	public static function dependancy_install() {
+		if (file_exists(jeedom::getTmpFolder('sonybravia') . '/dependance')) {
+		    return;
+		}
 		log::remove(__CLASS__ . '_update');
 		return array('script' => dirname(__FILE__) . '/../../resources/install_#stype#.sh ' . jeedom::getTmpFolder('sonybravia') . '/dependance', 'log' => log::getPathToLog(__CLASS__ . '_update'));
 	}
@@ -141,23 +144,6 @@ class sonybravia extends eqLogic {
 			throw new Exception(__('Commande ID virtuel inconnu, ou la commande n\'est pas de type virtuel : ', __FILE__) . init('id'));
 		}
 		$cmd->event(init('value'));
-	}
-	
-
-	public static function cron() {
-		/*foreach (eqLogic::byType('sonybravia', true) as $eqLogic) {
-			$autorefresh = $eqLogic->getConfiguration('autorefresh');
-			if ($autorefresh != '') {
-				try {
-					$c = new Cron\CronExpression($autorefresh, new Cron\FieldFactory);
-					if ($c->isDue()) {
-						$eqLogic->refresh();
-					}
-				} catch (Exception $exc) {
-					log::add('sonybravia', 'error', __('Expression cron non valide pour ', __FILE__) . $eqLogic->getHumanName() . ' : ' . $autorefresh);
-				}
-			}
-		}*/
 	}
 	
 	public static function deadCmd() {

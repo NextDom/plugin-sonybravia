@@ -16,45 +16,4 @@
  * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
  */
  
- 
- 
-/*
-header('Content-type: application/json');
-require_once dirname(__FILE__) . "/../../../../core/php/core.inc.php";
-
-if (!jeedom::apiAccess(init('apikey'), 'sonybravia')) {
- echo __('Clef API non valide, vous n\'êtes pas autorisé à effectuer cette action (sonybravia)', __FILE__);
- die();
-}
-
-$eqlogic = sonybravia::byLogicalId(init('mac'), 'sonybravia');
-if (!is_object($eqlogic)) {
-	die();
-}
-$array_recu = "";
-foreach ($_GET as $key => $value) {
-	$array_recu = $array_recu . $key . '=' . $value . ' / ';
-	$cmd = $eqlogic->getCmd('info',$key);
-	if (is_object($cmd)) {
-		$cmd->event($value);
-	}
-}
-log::add('sonybravia', 'debug', 'Reception de : ' . $array_recu);*/
-
-header('Content-Type: application/json');
-
-require_once dirname(__FILE__) . "/../../../../core/php/core.inc.php";
-global $jsonrpc;
-if (!is_object($jsonrpc)) {
-	throw new Exception(__('JSONRPC object not defined', __FILE__), -32699);
-}
-
-if (init('action') == 'start') {
-	
-	
-$params = $jsonrpc->getParams();
-if ($jsonrpc->getMethod() == 'start') {
-	$jsonrpc->makeSuccess(sonybravia::tv_deamon_start($params['ip'],$params['mac'],$params['psk']));
-}
-
 ?>

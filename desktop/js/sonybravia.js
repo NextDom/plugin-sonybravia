@@ -65,6 +65,10 @@ $('.deamoninfo').on('click', function () {
 	maj_etat();
 });
 
+$( ".deamoninfo" ).on('mouseenter', function() {
+    maj_etat();
+});
+
  $('#bt_cronGenerator').on('click',function(){
     jeedom.getCronSelectModal({},function (result) {
         $('.eqLogicAttr[data-l1key=configuration][data-l2key=autorefresh]').value(result.value);
@@ -126,15 +130,23 @@ $('.deamoninfo').on('click', function () {
      tr += '<input class="cmdAttr form-control type input-sm" data-l1key="type" value="info" disabled style="margin-bottom : 5px;" />';
      tr += '<span class="subType" subType="' + init(_cmd.subType) + '"></span>';
      tr += '</td>';
-	 tr += '<td><input class="cmdAttr form-control input-sm" data-l1key="logicalId" style="width : 140px;" placeholder="{{logicalId}}"></td>';
-     tr += '<td><textarea class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="calcul" style="height : 33px;" ' + disabled + ' placeholder="{{Calcul}}"></textarea>';
-     tr += '<a class="btn btn-default cursor listEquipementInfo btn-sm" data-input="calcul"><i class="fa fa-list-alt "></i> {{Rechercher équipement}}</a>';
-     tr += '<input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="returnStateValue" placeholder="{{Valeur retour d\'état}}" style="margin : 5px;width : 30%;display : inline-block;">';
-     tr += '<input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="returnStateTime" placeholder="{{Durée avant retour d\'état (min)}}" style="margin : 5px;width : 30%;display : inline-block;">';
-     tr += '</td>';
-	 tr += '<td></td>'
+     tr += '<td><select style="width : 140px;" class="cmdAttr form-control input-sm" data-l1key="logicalId">';
+     tr += '<option value="model">Model</option>';
+     tr += '<option value="status">Etat</option>';
+     tr += '<option value="volume">Volume</option>';
+     tr += '<option value="source">Source</option>';
+     tr += '<option value="chaine">Chaine</option>';
+     tr += '<option value="program">Programme</option>';
+     tr += '</select></td>';
+     //tr += '<td><input class="cmdAttr form-control input-sm" data-l1key="logicalId" style="width : 140px;" placeholder="{{logicalId}}"></td>';
+     //tr += '<td><textarea class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="calcul" style="height : 33px;" ' + disabled + ' placeholder="{{Calcul}}"></textarea>';
+     //tr += '<a class="btn btn-default cursor listEquipementInfo btn-sm" data-input="calcul"><i class="fa fa-list-alt "></i> {{Rechercher équipement}}</a>';
+     //tr += '<input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="returnStateValue" placeholder="{{Valeur retour d\'état}}" style="margin : 5px;width : 30%;display : inline-block;">';
+     //tr += '<input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="returnStateTime" placeholder="{{Durée avant retour d\'état (min)}}" style="margin : 5px;width : 30%;display : inline-block;">';
+     //tr += '</td>';
+     tr += '<td></td>'
      //tr += '<td><input class="cmdAttr form-control input-sm" data-l1key="unite" style="width : 90px;" placeholder="{{Unité}}"></td>';
-     //tr += '<td>';
+     tr += '<td>';
      tr += '<span><label class="checkbox-inline"><input type="checkbox" class="cmdAttr checkbox-inline" data-l1key="isVisible" checked/>{{Afficher}}</label></span> ';
      tr += '<span><label class="checkbox-inline"><input type="checkbox" class="cmdAttr checkbox-inline" data-l1key="isHistorized" checked/>{{Historiser}}</label></span> ';
      tr += '<span><label class="checkbox-inline"><input type="checkbox" class="cmdAttr expertModeVisible" data-l1key="display" data-l2key="invertBinary"/>{{Inverser}}</label></span><br/>';
@@ -175,19 +187,18 @@ if (init(_cmd.type) == 'action') {
     tr += '<option value="">Aucune</option>';
     tr += '</select>';
     tr += '</td>';
-	tr += '<td><input class="cmdAttr form-control input-sm" data-l1key="logicalId" style="width : 140px;" placeholder="{{logicalId}}"></td>';
     tr += '<td>';
     tr += '<input class="cmdAttr form-control type input-sm" data-l1key="type" value="action" disabled style="margin-bottom : 5px;" />';
     tr += '<span class="subType" subType="' + init(_cmd.subType) + '"></span>';
     tr += '<input class="cmdAttr" data-l1key="configuration" data-l2key="sonybraviaAction" value="1" style="display:none;" >';
     tr += '</td>';
+    tr += '<td><input class="cmdAttr form-control input-sm" data-l1key="logicalId" style="width : 140px;" placeholder="{{logicalId}}"></td>';
     tr += '<td>';
     tr += '<input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="infoName" placeholder="{{Nom information}}" style="margin-bottom : 5px;width : 70%; display : inline-block;" />';
     tr += '<a class="btn btn-default btn-sm cursor listEquipementAction" data-input="infoName" style="margin-left : 5px;"><i class="fa fa-list-alt "></i> {{Rechercher équipement}}</a>';
     tr += '<input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="value" placeholder="{{Valeur}}" style="margin-bottom : 5px;width : 50%; display : inline-block;" />';
     tr += '<a class="btn btn-default btn-sm cursor listEquipementInfo" data-input="value" style="margin-left : 5px;"><i class="fa fa-list-alt "></i> {{Rechercher équipement}}</a>';
     tr += '</td>';
-    tr += '<td></td>';
     tr += '<td>';
     tr += '<select class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="updateCmdId" style="display : none;margin-top : 5px;" title="Commande d\'information à mettre à jour">';
     tr += '<option value="">Aucune</option>';
