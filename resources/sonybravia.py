@@ -95,9 +95,9 @@ class SonyBravia:
 				Donnees["volume"] = str(vol['volume'])
 				#print('Volume:', vol['volume'])
 				tvPlaying = self._braviainstance.get_playing_info()
-				print(self._braviainstance.get_playing_info())
+				#print(self._braviainstance.get_playing_info())
 				if not tvPlaying:
-					print("Netflix")
+					#print("Netflix")
 					Donnees["source"] = "Netflix"
 				else:
 					if(tvPlaying['source'] == "tv:analog"):
@@ -106,8 +106,8 @@ class SonyBravia:
 						Donnees["program"] = tvPlaying['title']
 					else:
 						Donnees["source"] = ((tvPlaying['source'])[-4:]).upper() + (tvPlaying['uri'])[-1:]
-			else:
-				print('TV status:', tvstatus) #status is standby net na het uitzetten, daarna niet meer bereikbaar
+			#else:
+				#print('TV status:', tvstatus) #status is standby net na het uitzetten, daarna niet meer bereikbaar
 			self.cmd = "curl -L -s -G --max-time 15 " + self._jeedomadress + " -d 'apikey=" + self._apikey + "&mac=" + self._macadress
 			#self.cmd = "curl -L -s -G --max-time 15 " + self._jeedomadress + " -d 'apikey=" + self._apikey + "&mac=" + self._macadress + "&model=" + tvinfo['model'] + "&status=" + tvstatus + "&vol=" + vol + "'"
 			#self.cmd = "curl -L -s -G --max-time 15 " + self._jeedomadress +"/plugins/sonybravia/core/php/jeesonybravia.php -d 'apikey=" + self._apikey + "&status=" + tvstatus + "'"
@@ -121,14 +121,14 @@ class SonyBravia:
                                     _SendData += _Separateur + cle +'='+ valeur
                                     _Donnees[cle] = valeur
 			_SendData += "'"
-			try:
-				thread = threading.Thread(target=target)
-				self.timer = threading.Timer(int(5), timer_callback)
-				self.timer.start()
-				thread.start()
-				#response = urllib2.urlopen(self.cmd)
-			except Exception:
-				errorCom = "Connection error"
+			if _SendData != "'":
+				try:
+					thread = threading.Thread(target=target)
+					self.timer = threading.Timer(int(5), timer_callback)
+					self.timer.start()
+					thread.start()
+				except Exception:
+					errorCom = "Connection error"
 			time.sleep(2)
 
 	def exit_handler(self, *args):
@@ -159,19 +159,18 @@ if __name__ == "__main__":
 		try:
 			psk = options.psk
 		except:
-			print('Erreur mac de la tv')
+			print('Erreur psk de la tv')
 	if options.apikey:
 		try:
 			apikey = options.apikey
 		except:
-			print('Erreur mac de la tv')
+			print('Erreur apikey de jeedom')
 	if options.jeedomadress:
 		try:
 			jeedomadress = options.jeedomadress
 		except:
-			print('Erreur mac de la tv')
+			print('Erreur adresse de jeedom')
 	pid = str(os.getpid())
-	#file("/tmp/sony-bravia.pid", 'w').write("%s\n" % pid)
 	tmpmac = mac.replace(":","")
 	file = open("/tmp/jeedom/sonybravia/sonybravia_"+tmpmac+".pid", "w")
 	file.write("%s\n" % pid) 
