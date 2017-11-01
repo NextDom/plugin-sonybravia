@@ -99,9 +99,12 @@ class SonyBravia:
 					print("Netflix")
 					Donnees["source"] = "Netflix"
 				else:
-					#print(tvPlaying['source'])
-					#print(tvPlaying['uri'])
-					Donnees["source"] = ((tvPlaying['source'])[-4:]).upper() + (tvPlaying['uri'])[-1:]
+					if(tvPlaying['source'] == "tv:analog"):
+						Donnees["source"] = ("TV").upper()
+						Donnees["chaine"] = tvPlaying['dispNum']
+						Donnees["program"] = tvPlaying['title']
+					else:
+						Donnees["source"] = ((tvPlaying['source'])[-4:]).upper() + (tvPlaying['uri'])[-1:]
 			else:
 				print('TV status:', tvstatus) #status is standby net na het uitzetten, daarna niet meer bereikbaar
 			self.cmd = "curl -L -s -G --max-time 15 " + self._jeedomadress + " -d 'apikey=" + self._apikey + "&mac=" + self._macadress
@@ -169,7 +172,7 @@ if __name__ == "__main__":
 	pid = str(os.getpid())
 	#file("/tmp/sony-bravia.pid", 'w').write("%s\n" % pid)
 	tmpmac = mac.replace(":","")
-	file = open("/tmp/sony-bravia_"+tmpmac+".pid", "w")
+	file = open("/tmp/jeedom/sonybravia/sonybravia_"+tmpmac+".pid", "w")
 	file.write("%s\n" % pid) 
 	file.close()
 	sonybravia = SonyBravia(ip, mac, psk, apikey, jeedomadress)

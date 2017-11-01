@@ -132,7 +132,10 @@ foreach (jeedom::getConfiguration('eqLogic:category') as $key => $value) {
 			
 			<div class="form-group">
 				<label class="col-sm-2 control-label"></label>
-				<div class="col-sm-2">
+				<div class="col-sm-1">
+					<span class="label deamoninfo" title="Cliquer pour mettre à jour" style="font-size:1em;position:relative;top:7px;"><i class="fa fa-refresh"></i> Etat</span>
+				</div>
+				<div class="col-sm-1">
 					<a class="btn btn-success startdeamontv"><i class="fa fa-cogs"></i> {{Démarrer}}</a>
 					<script>
 						$('.startdeamontv').on('click', function () {
@@ -160,7 +163,7 @@ foreach (jeedom::getConfiguration('eqLogic:category') as $key => $value) {
 					});
 					</script>
 				</div>
-				<div class="col-sm-2">
+				<div class="col-sm-1">
 					<a class="btn btn-danger stopdeamontv"><i class="fa fa-cogs"></i> {{Arrêter}}</a>
 					<script>
 						$('.stopdeamontv').on('click', function () {

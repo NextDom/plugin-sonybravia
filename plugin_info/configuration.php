@@ -23,28 +23,3 @@ if (!isConnect()) {
 }
 
 ?>
-
-<form class="form-horizontal">
-    <fieldset>	
-		<div class="form-group div_local">
-            <label class="col-lg-4 control-label">Adresse ip : </label>
-            <div class="col-lg-4">
-				<input id="ipadress" class="configKey form-control" data-l1key="ipadress" style="margin-top:5px;" placeholder="192.168.1.1"/>
-            </div>
-        </div>
-		
-		<div class="form-group div_local">
-            <label class="col-lg-4 control-label">Adresse Mac : </label>
-            <div class="col-lg-4">
-				<input id="macadress" class="configKey form-control" data-l1key="macadress" style="margin-top:5px;" placeholder="00:00:00:00:00"/>
-            </div>
-        </div>
-		
-		<div class="form-group div_local">
-            <label class="col-lg-4 control-label">Clé : </label>
-            <div class="col-lg-4">
-				<input id="key" class="configKey form-control" data-l1key="key" style="margin-top:5px;" placeholder=""/>
-            </div>
-        </div>
-	</fieldset>
-</form>

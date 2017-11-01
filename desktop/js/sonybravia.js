@@ -38,6 +38,33 @@
     });
 });
 
+function maj_etat(){
+	$.ajax({// fonction permettant de faire de l'ajax
+		type: "POST", // methode de transmission des données au fichier php
+		url: "plugins/sonybravia/core/ajax/sonybravia.ajax.php", // url du fichier php
+		data: {
+			action: "deamon_info",
+			mac : $( "input[data-l1key='logicalId']" ).value()
+		},
+		dataType: 'json',
+		error: function (request, status, error) {
+			handleAjaxError(request, status, error);
+		},
+		success: function (data) { // si l'appel a bien fonctionné
+			if (data.result == true) {
+				$(".deamoninfo").removeClass('label-danger').addClass( 'label-success' );
+			}
+			else{
+				$(".deamoninfo").removeClass('label-success').addClass( 'label-danger' );
+			}
+		}
+	});
+}
+
+$('.deamoninfo').on('click', function () {
+	maj_etat();
+});
+
  $('#bt_cronGenerator').on('click',function(){
     jeedom.getCronSelectModal({},function (result) {
         $('.eqLogicAttr[data-l1key=configuration][data-l2key=autorefresh]').value(result.value);

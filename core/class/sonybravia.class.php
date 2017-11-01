@@ -20,6 +20,23 @@ require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 
 class sonybravia extends eqLogic {
 	
+	public static function dependancy_info() {
+		$return = array();
+		$return['log'] = 'sonybravia_update';
+		$return['progress_file'] = jeedom::getTmpFolder('sonybravia') . '/dependance';
+		if(strpos(exec('python3 --version'), 'Python 3.5') !== false){
+			$return['state'] = 'ok';
+		} else {
+			$return['state'] = 'nok';
+		}
+		return $return;
+	}
+	
+	public static function dependancy_install() {
+		log::remove(__CLASS__ . '_update');
+		return array('script' => dirname(__FILE__) . '/../../resources/install_#stype#.sh ' . jeedom::getTmpFolder('sonybravia') . '/dependance', 'log' => log::getPathToLog(__CLASS__ . '_update'));
+	}
+	
 	public static function deamon_info() {
 		$return = array();
 		$return['log'] = 'sonybravia';
@@ -28,7 +45,7 @@ class sonybravia extends eqLogic {
 			//log::add('sonybravia', 'debug', sonybravia::tv_deamon_info("90:CD:B6:41:F5:2F"));
 			$_retour = sonybravia::tv_deamon_info($eqLogic->getLogicalId());
 			if (!$_retour)
-				$retour false;
+				$retour = false;
 		}	
 		if($retour){
 			$return['state'] = 'ok';
@@ -42,18 +59,15 @@ class sonybravia extends eqLogic {
 	}
 	
 	public static function deamon_stop() {
-		$pid_file = '/tmp/sonybravia.pid';
-		if (file_exists($pid_file)) {
-			$pid = intval(trim(file_get_contents($pid_file)));
-			system::kill($pid);
-		}
-		system::kill('sonybravia.py');
-		//system::fuserk(config::byKey('socketport', 'sonybravia'));
-		sleep(1);
+		foreach (eqLogic::byType('sonybravia', true) as $eqLogic) {
+			$pidmac = str_replace(":", "", $eqLogic->getLogicalId());
+			self::tv_deamon_stop($pidmac);
+		}	
 	}
 	
 	public static function tv_deamon_stop($mac) {
-		$pid_file = '/tmp/sonybravia'.$mac.'.pid';
+		log::add('sonybravia', 'info', 'Arrêt démon sonybravia : ' . $mac);
+		$pid_file =  jeedom::getTmpFolder('sonybravia') .'/sonybravia'.$mac.'.pid';
 		if (file_exists($pid_file)) {
 			$pid = intval(trim(file_get_contents($pid_file)));
 			system::kill($pid);
@@ -63,28 +77,24 @@ class sonybravia extends eqLogic {
 	}
 	
 	public static function tv_deamon_info($mac){
-		//$return = array();
 		$return = false; 
-		//$return['log'] = 'sonybravia';
-		//$return['state'] = 'nok';
-		$pid_file = '/tmp/sonybravia' . $mac . '.pid';
+		$pidmac = str_replace(":", "", $mac);
+		$pid_file = jeedom::getTmpFolder('sonybravia') .'/sonybravia_' . $pidmac . '.pid';
 		if (file_exists($pid_file)) {
-			if (@posix_getsid(trim(file_get_contents($pid_file)))) {
-				//$return['state'] = 'ok';
+			if (posix_getsid(trim(file_get_contents($pid_file)))) {
 				$return = true;
 			} else {
-				shell_exec('sudo rm -rf ' . $pid_file . ' 2>&1 > /dev/null;rm -rf ' . $pid_file . ' 2>&1 > /dev/null;');
+				shell_exec(system::getCmdSudo() . 'rm -rf ' . $pid_file . ' 2>&1 > /dev/null');
 			}
 		}
-		//$return = true;
-		//$return['state'] = 'ok';
-		//$return['launchable'] = 'ok';
 		return $return;
 	}
 	
 	public static function tv_deamon_start($_ip, $_mac, $_psk){
-		self::deamon_stop();
 		$deamon_info = self::deamon_info();
+		if ($deamon_info['state'] == 'ok') {
+			self::deamon_stop();
+		}
 		if ($deamon_info['launchable'] != 'ok') {
 			throw new Exception(__('Veuillez vérifier la configuration', __FILE__));
 		}
@@ -115,6 +125,10 @@ class sonybravia extends eqLogic {
 	}
 	
 	public static function deamon_start() {
+		foreach (eqLogic::byType('sonybravia', true) as $eqLogic) {
+			self::tv_deamon_start($eqLogic->getConfiguration('ipadress'), $eqLogic->getLogicalId(),$eqLogic->getConfiguration('psk'));
+			sleep(1);
+		}	
 		return true;
 	}
 	/*     * *************************Attributs****************************** */

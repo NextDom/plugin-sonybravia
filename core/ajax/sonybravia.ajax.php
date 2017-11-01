@@ -32,6 +32,12 @@ try {
 		ajax::success();
 	}
 	
+	if (init('action') == 'deamon_info') {
+		$return = array();
+		$resultat = sonybravia::tv_deamon_info(init('mac'));
+		ajax::success($return['result'] = $resultat);
+	}
+	
 	throw new Exception('Aucune methode correspondante');
 	/*     * *********Catch exeption*************** */
 } catch (Exception $e) {
