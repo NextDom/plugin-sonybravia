@@ -71,11 +71,12 @@ class SonyBravia:
 		tvstatus = ""
 		while(1):
 			_RazCalcul = datetime.now() - _RAZ
-			if(_RazCalcul.seconds > 3600):
+			if(_RazCalcul.seconds > 8):
 				_RAZ = datetime.now()
-				for cle, valeur in Donnees.items():
-					Donnees.pop(cle)
-					_Donnees.pop(cle)
+				del Donnees
+				del _Donnees
+				Donnees = {}
+				_Donnees = {}
 			_SendData = ""
 			try:
 				tvstatus = self._braviainstance.get_power_status()
@@ -112,13 +113,13 @@ class SonyBravia:
 			#self.cmd = "curl -L -s -G --max-time 15 " + self._jeedomadress +"/plugins/sonybravia/core/php/jeesonybravia.php -d 'apikey=" + self._apikey + "&status=" + tvstatus + "'"
 			#cmd = 'nice -n 19 timeout 15 /usr/bin/php /var/www/html/plugins/sonybravia/core/class/../php/jeesonybravia.php api=' + self._apikey + " status=" + tvstatus
 			for cle, valeur in Donnees.items():
-				#if(cle in _Donnees):
-				#	if (Donnees[cle] != _Donnees[cle]):
-				_SendData += _Separateur + cle +'='+ valeur
-				_Donnees[cle] = valeur
-				#else:
-				#	_SendData += _Separateur + cle +'='+ valeur
-				#	_Donnees[cle] = valeur
+				if(cle in _Donnees):
+                                    if (Donnees[cle] != _Donnees[cle]):
+                                        _SendData += _Separateur + cle +'='+ valeur
+                                        _Donnees[cle] = valeur
+				else:
+                                    _SendData += _Separateur + cle +'='+ valeur
+                                    _Donnees[cle] = valeur
 			_SendData += "'"
 			try:
 				thread = threading.Thread(target=target)
