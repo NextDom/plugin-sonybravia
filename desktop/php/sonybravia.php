@@ -135,7 +135,7 @@ foreach (jeedom::getConfiguration('eqLogic:category') as $key => $value) {
                 
                         <div class="form-group">
                             <label class="col-sm-2 control-label"></label>
-                            <div style="margin-top:10px" class="col-sm-2">
+                            <div style="margin-top:10px" class="col-sm-3">
                                 Si ce mode ne fonctionne pas, passer au mode PIN : <br/>
                                 <input type="checkbox" id="checkbox_psk" class="eqLogicAttr" data-l1key="configuration" data-l2key="pin" placeholder="{{}}"/> Mode PIN
                             </div>
