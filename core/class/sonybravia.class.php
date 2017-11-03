@@ -50,7 +50,7 @@ class sonybravia extends eqLogic {
 			$_retour = sonybravia::tv_deamon_info($eqLogic->getLogicalId());
 			if (!$_retour)
 				$retour = false;
-                            if ($eqLogic->getConfiguration('psk') == ""){
+                            if ($eqLogic->getConfiguration('psk') == "1234"){
                                 $return['launchable'] = 'nok';
                             }
 		}	
@@ -74,7 +74,7 @@ class sonybravia extends eqLogic {
 	
 	public static function tv_deamon_stop($mac) {
 		log::add('sonybravia', 'info', 'Arrêt démon sonybravia : ' . $mac);
-		$pid_file =  jeedom::getTmpFolder('sonybravia') .'/sonybravia'.$mac.'.pid';
+		$pid_file =  jeedom::getTmpFolder('sonybravia') .'/sonybravia_'.$mac.'.pid';
 		if (file_exists($pid_file)) {
 			$pid = intval(trim(file_get_contents($pid_file)));
 			system::kill($pid);
@@ -219,7 +219,7 @@ class sonybravia extends eqLogic {
 	}*/
 
 	public function postSave() {
-		$refresh = $this->getCmd(null, 'refresh');
+		/*$refresh = $this->getCmd(null, 'refresh');
 		if (!is_object($refresh)) {
 			$refresh = new sonybraviaCmd();
 			$refresh->setLogicalId('refresh');
@@ -229,7 +229,7 @@ class sonybravia extends eqLogic {
 		$refresh->setType('action');
 		$refresh->setSubType('other');
 		$refresh->setEqLogic_id($this->getId());
-		$refresh->save();
+		$refresh->save();*/
 	}
 
 	public function copyFromEqLogic($_eqLogic_id) {

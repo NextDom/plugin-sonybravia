@@ -263,3 +263,9 @@ $('#checkbox_psk').change(function() {
         //$( '.startdeamontv').attr("disabled","disabled");
     }
 }); 
+
+$('#checkbox_psk').change(function() {
+    if ($( 'input[data-l2key="psk"]').value() == ""){
+    $('input[data-l2key="psk"]').value("1234");
+}
+});
