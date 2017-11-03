@@ -296,63 +296,10 @@ class sonybraviaCmd extends cmd {
 	}
 
 	public function preSave() {
-		if ($this->getLogicalId() == 'refresh') {
-			return;
-		}
 		if ($this->getConfiguration('sonybraviaAction') == 1) {
 			$actionInfo = sonybraviaCmd::byEqLogicIdCmdName($this->getEqLogic_id(), $this->getName());
 			if (is_object($actionInfo)) {
 				$this->setId($actionInfo->getId());
-			}
-		}
-		if ($this->getType() == 'action') {
-			if ($this->getConfiguration('infoName') == '') {
-				throw new Exception(__('Le nom de la commande info ne peut etre vide', __FILE__));
-			}
-			$cmd = cmd::byId(str_replace('#', '', $this->getConfiguration('infoName')));
-			if (is_object($cmd)) {
-				$this->setSubType($cmd->getSubType());
-			} else {
-				$actionInfo = sonybraviaCmd::byEqLogicIdCmdName($this->getEqLogic_id(), $this->getConfiguration('infoName'));
-				if (!is_object($actionInfo)) {
-					$actionInfo = new sonybraviaCmd();
-					$actionInfo->setType('info');
-					switch ($this->getSubType()) {
-						case 'slider':
-							$actionInfo->setSubType('numeric');
-							break;
-						default:
-							$actionInfo->setSubType('string');
-							break;
-					}
-				}
-				$actionInfo->setConfiguration('sonybraviaAction', 1);
-				$actionInfo->setName($this->getConfiguration('infoName'));
-				$actionInfo->setEqLogic_id($this->getEqLogic_id());
-				$actionInfo->save();
-				$this->setConfiguration('infoId', $actionInfo->getId());
-			}
-		} else {
-			$calcul = $this->getConfiguration('calcul');
-			if (strpos($calcul, '#' . $this->getId() . '#') !== false) {
-				throw new Exception(__('Vous ne pouvez faire un calcul sur la valeur elle meme (boucle infinie)!!!', __FILE__));
-			}
-			preg_match_all("/#([0-9]*)#/", $calcul, $matches);
-			$value = '';
-			foreach ($matches[1] as $cmd_id) {
-				if (is_numeric($cmd_id)) {
-					$cmd = self::byId($cmd_id);
-					if (is_object($cmd) && $cmd->getType() == 'info') {
-						$value .= '#' . $cmd_id . '#';
-					}
-				}
-			}
-			preg_match_all("/variable\((.*?)\)/", $calcul, $matches);
-			foreach ($matches[1] as $variable) {
-				$value .= '#variable(' . $variable . ')#';
-			}
-			if ($value != '') {
-				$this->setValue($value);
 			}
 		}
 	}
@@ -364,10 +311,6 @@ class sonybraviaCmd extends cmd {
 	}
 
 	public function execute($_options = null) {
-		if ($this->getLogicalId() == 'refresh') {
-			$this->getEqLogic()->refresh();
-			return;
-		}
 		switch ($this->getType()) {
 			case 'info':
 				if ($this->getConfiguration('sonybraviaAction', 0) == '0') {
@@ -393,39 +336,18 @@ class sonybraviaCmd extends cmd {
 				}
 				break;
 			case 'action':
-				$sonybraviaCmd = sonybraviaCmd::byId($this->getConfiguration('infoId'));
-				if (!is_object($sonybraviaCmd)) {
-					$cmds = explode('&&', $this->getConfiguration('infoName'));
-					if (is_array($cmds)) {
-						foreach ($cmds as $cmd_id) {
-							$cmd = cmd::byId(str_replace('#', '', $cmd_id));
-							if (is_object($cmd)) {
-								$cmd->execCmd($_options);
-							}
-						}
-						return;
-					} else {
-						$cmd = cmd::byId(str_replace('#', '', $this->getConfiguration('infoName')));
-						return $cmd->execCmd($_options);
-					}
-				} else {
-					if ($sonybraviaCmd->getEqType() != 'sonybravia') {
-						throw new Exception(__('La cible de la commande virtuel n\'est pas un équipement de type virtuel', __FILE__));
-					}
-					if ($this->getSubType() == 'slider') {
-						$value = $_options['slider'];
-					} else if ($this->getSubType() == 'color') {
-						$value = $_options['color'];
-					} else if ($this->getSubType() == 'select'){
-						$value = $_options['select'];
-					} else {
-						$value = $this->getConfiguration('value');
-					}
-					$result = jeedom::evaluateExpression($value);
-					if ($this->getSubtype() == 'message') {
-						$result = $_options['title'] . ' ' . $_options['message'];
-					}
-					$sonybraviaCmd->event($result);
+                                try {
+                                    $sonybravia = $this->getEqLogic();
+                                    $sonybravia_path = realpath(dirname(__FILE__) . '/../../resources');
+                                    $cmd = 'sudo /usr/bin/python3 ' . $sonybravia_path . '/sonybravia_send.py';
+                                    $cmd .= ' --tvip ' . $sonybravia->getConfiguration('ipadress');
+                                    $cmd .= ' --mac ' . $sonybravia->getLogicalId();
+                                    $cmd .= ' --psk ' . $sonybravia->getConfiguration('psk');
+                                    $cmd .= ' --command ' . $this->getLogicalId();
+                                    $cmd .= ' --commandparam ' . $this->getConfiguration('param');
+                                    $result = exec($cmd . ' >> ' . log::getPathToLog('sonybravia') . ' 2>&1 &');
+                                } catch (Exception $e) {
+                                    log::add('sonybravia', 'info', $e->getMessage());
 				}
 				break;
 		}

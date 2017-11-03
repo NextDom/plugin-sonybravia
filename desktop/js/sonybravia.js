@@ -192,22 +192,21 @@ if (init(_cmd.type) == 'action') {
     tr += '<span class="subType" subType="' + init(_cmd.subType) + '"></span>';
     tr += '<input class="cmdAttr" data-l1key="configuration" data-l2key="sonybraviaAction" value="1" style="display:none;" >';
     tr += '</td>';
-    tr += '<td><input class="cmdAttr form-control input-sm" data-l1key="logicalId" style="width : 140px;" placeholder="{{logicalId}}"></td>';
+    tr += '<td><select id="select_actions" style="width : 140px;" class="cmdAttr form-control input-sm" data-l1key="logicalId">';
+    tr += '<option value="turn_on">Allumer</option>';
+    tr += '<option value="turn_off">Eteindre</option>';
+    tr += '<option value="volume_up">Vol haut</option>';
+    tr += '<option value="volume_down">Vol bas</option>';
+    tr += '<option value="mute_volume">Mute</option>';
+    tr += '</select></td>';
     tr += '<td>';
-    tr += '<input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="infoName" placeholder="{{Nom information}}" style="margin-bottom : 5px;width : 70%; display : inline-block;" />';
-    tr += '<a class="btn btn-default btn-sm cursor listEquipementAction" data-input="infoName" style="margin-left : 5px;"><i class="fa fa-list-alt "></i> {{Rechercher équipement}}</a>';
-    tr += '<input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="value" placeholder="{{Valeur}}" style="margin-bottom : 5px;width : 50%; display : inline-block;" />';
-    tr += '<a class="btn btn-default btn-sm cursor listEquipementInfo" data-input="value" style="margin-left : 5px;"><i class="fa fa-list-alt "></i> {{Rechercher équipement}}</a>';
+    tr += '<input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="param" placeholder="{{Nom information}}" style="margin-bottom : 5px;width : 70%; display : inline-block;" />';
     tr += '</td>';
     tr += '<td>';
     tr += '<select class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="updateCmdId" style="display : none;margin-top : 5px;" title="Commande d\'information à mettre à jour">';
     tr += '<option value="">Aucune</option>';
     tr += '</select>';
-    //tr += '<input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="updateCmdToValue" placeholder="Valeur de l\'information" style="display : none;margin-top : 5px;">';
     tr += '<span><label class="checkbox-inline"><input type="checkbox" class="cmdAttr checkbox-inline" data-l1key="isVisible" checked/>{{Afficher}}</label></span> ';
-    //tr += '<input class="tooltips cmdAttr form-control input-sm expertModeVisible" data-l1key="configuration" data-l2key="listValue" placeholder="{{Liste de valeur|texte séparé par ;}}" title="{{Liste}}" style="margin-top : 5px;">';
-    //tr += '<input class="tooltips cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="minValue" placeholder="{{Min}}" title="{{Min}}" style="width : 40%;display : inline-block;" /> ';
-    //tr += '<input class="tooltips cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="maxValue" placeholder="{{Max}}" title="{{Max}}" style="width : 40%;display : inline-block;" />';
     tr += '</td>';
     tr += '<td>';
     if (is_numeric(_cmd.id)) {
@@ -269,3 +268,4 @@ $('#checkbox_psk').change(function() {
     $('input[data-l2key="psk"]').value("1234");
 }
 });
+

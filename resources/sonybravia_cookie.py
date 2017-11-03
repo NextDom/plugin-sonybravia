@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 #
-#   Sony Bravia - Domoticz Python plugin
-#   G3rard
-#
-#   With thanks to Frank Fesevur for localtest
 #
 try:
     import Domoticz
@@ -47,6 +43,7 @@ class SonyBravia:
 		Donnees = {}
 		_Donnees = {}
 		Sources = {}
+		Apps = {}
 		_RAZ = datetime.now()
 		_RazCalcul = 0
 		_Separateur = "&"
@@ -70,11 +67,21 @@ class SonyBravia:
 		tvstatus = ""
 		try:
 			Sources = self._braviainstance.load_source_list()
+			Apps = self._braviainstance.load_app_list()
 			for cle, valeur in Sources.items():
 				_tmp += cle.replace(' ' , '-')
 				_tmp += "|"
-			print (_tmp)
+			#print (_tmp)
 			Donnees["sources"] = _tmp
+			_tmp = ""
+			for cle, valeur in Apps.items():
+				_tmp += cle + "|"
+			#print (_tmp)
+			Donnees["apps"] = _tmp
+			#file = open("/tmp/jeedom/sonybravia/sonybravia_apps", "w")
+			#file.write("%s\n" % _tmp) 
+			#file.close()
+			
 		except Exception:
 					errorCom = "Connection error"
 		while(1):
@@ -89,7 +96,7 @@ class SonyBravia:
 			try:
 				tvstatus = self._braviainstance.get_power_status()
 				Donnees["status"] = tvstatus
-				print('Status TV:', tvstatus)
+				#print('Status TV:', tvstatus)
 			except KeyError:
 				print('TV not found')
 				sys.exit()

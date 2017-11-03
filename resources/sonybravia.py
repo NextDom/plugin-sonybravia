@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 #
-#   Sony Bravia - Domoticz Python plugin
-#   G3rard
-#
-#   With thanks to Frank Fesevur for localtest
 #
 try:
     import Domoticz
