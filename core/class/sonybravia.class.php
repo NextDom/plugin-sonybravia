@@ -43,20 +43,24 @@ class sonybravia extends eqLogic {
 	public static function deamon_info() {
 		$return = array();
 		$return['log'] = 'sonybravia';
+                $return['launchable'] = 'ok';
 		$retour = true;
 		foreach (eqLogic::byType('sonybravia', true) as $eqLogic) {
 			//log::add('sonybravia', 'debug', sonybravia::tv_deamon_info("90:CD:B6:41:F5:2F"));
 			$_retour = sonybravia::tv_deamon_info($eqLogic->getLogicalId());
 			if (!$_retour)
 				$retour = false;
+                            if ($eqLogic->getConfiguration('psk') == ""){
+                                $return['launchable'] = 'nok';
+                            }
 		}	
 		if($retour){
 			$return['state'] = 'ok';
-			$return['launchable'] = 'ok';
+			//$return['launchable'] = 'ok';
 		}
 		else{
 			$return['state'] = 'nok';
-			$return['launchable'] = 'ok';
+			//$return['launchable'] = 'ok';
 		}
 		return $return;
 	}
@@ -92,8 +96,8 @@ class sonybravia extends eqLogic {
 		}
 		return $return;
 	}
-	
-	public static function tv_deamon_start($_ip, $_mac, $_psk){
+        
+        public static function tv_deamon_pin($_ip, $_mac, $_psk, $_cookie = false){
 		$deamon_info = self::deamon_info();
 		if ($deamon_info['state'] == 'ok') {
 			self::deamon_stop();
@@ -102,7 +106,37 @@ class sonybravia extends eqLogic {
 			throw new Exception(__('Veuillez vérifier la configuration', __FILE__));
 		}
 		$sonybravia_path = realpath(dirname(__FILE__) . '/../../resources');
-		$cmd = 'sudo /usr/bin/python3 ' . $sonybravia_path . '/sonybravia.py';
+                if ($_cookie == true){
+                    $cmd = 'sudo /usr/bin/python3 ' . $sonybravia_path . '/sonybravia_cookie.py';
+                    $cmd .= ' --tvip ' . $_ip;
+                    $cmd .= ' --mac ' . $_mac;
+                    $cmd .= ' --psk ' . $_psk;
+                    $cmd .= ' --jeedomadress ' . network::getNetworkAccess('internal', 'proto:127.0.0.1:port:comp') . '/plugins/sonybravia/core/php/jeesonybravia.php';
+                    $cmd .= ' --apikey ' . jeedom::getApiKey('sonybravia');
+                    log::add('sonybravia', 'info', 'Récupération du pin : ' . $cmd);
+                    $result = exec($cmd . ' >> ' . log::getPathToLog('sonybravia') . ' 2>&1 &');
+                    message::removeAll('sonybravia', 'unableStartDeamon');
+                    return true;		
+                }
+                log::add('sonybravia', 'error', __('Veuillez sélectionner le mode pin'), 'unableStartDeamon');
+                return false;
+	}
+	
+	public static function tv_deamon_start($_ip, $_mac, $_psk, $_cookie = false){
+		$deamon_info = self::deamon_info();
+		if ($deamon_info['state'] == 'ok') {
+			self::deamon_stop();
+		}
+		if ($deamon_info['launchable'] != 'ok') {
+			throw new Exception(__('Veuillez vérifier la configuration', __FILE__));
+		}
+		$sonybravia_path = realpath(dirname(__FILE__) . '/../../resources');
+                if ($_cookie == true){
+                    $cmd = 'sudo /usr/bin/python3 ' . $sonybravia_path . '/sonybravia_cookie.py';
+                }
+                else{
+                    $cmd = 'sudo /usr/bin/python3 ' . $sonybravia_path . '/sonybravia.py';
+                }
 		$cmd .= ' --tvip ' . $_ip;
 		$cmd .= ' --mac ' . $_mac;
 		$cmd .= ' --psk ' . $_psk;
@@ -129,7 +163,7 @@ class sonybravia extends eqLogic {
 	
 	public static function deamon_start() {
 		foreach (eqLogic::byType('sonybravia', true) as $eqLogic) {
-			self::tv_deamon_start($eqLogic->getConfiguration('ipadress'), $eqLogic->getLogicalId(),$eqLogic->getConfiguration('psk'));
+			self::tv_deamon_start($eqLogic->getConfiguration('ipadress'), $eqLogic->getLogicalId(),$eqLogic->getConfiguration('psk'),$eqLogic->getConfiguration('pin'));
 			sleep(1);
 		}	
 		return true;

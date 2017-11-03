@@ -235,3 +235,31 @@ if (init(_cmd.type) == 'action') {
     });
 }
 }
+
+if($("#checkbox_psk").is(':checked'))
+{
+    $( 'input[data-l2key="psk"]').prop('disabled', true);
+    //$( '.gettvpin').removeAttr("disabled");
+    //$( '.startdeamontv').removeAttr("disabled");
+    $( '.gettvpin').hide();
+    $( '.startdeamontv').hide();
+}
+
+
+$('#checkbox_psk').change(function() {
+    if($("#checkbox_psk").is(':checked'))
+    {
+        $('input[data-l2key="psk"]').prop('disabled', true);
+        $( '.gettvpin').removeAttr("disabled");
+        $( '.startdeamontv').removeAttr("disabled");
+        $( '.gettvpin').show();
+        $( '.startdeamontv').show();
+    }
+    else{
+        $('input[data-l2key="psk"]').prop('disabled', false);
+        $( '.gettvpin').hide();
+        $( '.startdeamontv').hide();
+        //$( '.gettvpin').attr("disabled","disabled");
+        //$( '.startdeamontv').attr("disabled","disabled");
+    }
+}); 

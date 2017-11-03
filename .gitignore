@@ -2,3 +2,8 @@
 *.pdn
 *.ini
 /nbproject/private/
+doc/images/config.png
+doc/images/config_network.jpg
+doc/images/settings.jpg
+doc/images/network.jpg
+doc/images/ip_control.jpg
