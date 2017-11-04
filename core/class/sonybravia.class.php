@@ -43,20 +43,24 @@ class sonybravia extends eqLogic {
 	public static function deamon_info() {
 		$return = array();
 		$return['log'] = 'sonybravia';
+                $return['launchable'] = 'ok';
 		$retour = true;
 		foreach (eqLogic::byType('sonybravia', true) as $eqLogic) {
 			//log::add('sonybravia', 'debug', sonybravia::tv_deamon_info("90:CD:B6:41:F5:2F"));
 			$_retour = sonybravia::tv_deamon_info($eqLogic->getLogicalId());
 			if (!$_retour)
 				$retour = false;
+                            if ($eqLogic->getConfiguration('psk') == "1234"){
+                                $return['launchable'] = 'nok';
+                            }
 		}	
 		if($retour){
 			$return['state'] = 'ok';
-			$return['launchable'] = 'ok';
+			//$return['launchable'] = 'ok';
 		}
 		else{
 			$return['state'] = 'nok';
-			$return['launchable'] = 'ok';
+			//$return['launchable'] = 'ok';
 		}
 		return $return;
 	}
@@ -70,7 +74,7 @@ class sonybravia extends eqLogic {
 	
 	public static function tv_deamon_stop($mac) {
 		log::add('sonybravia', 'info', 'Arrêt démon sonybravia : ' . $mac);
-		$pid_file =  jeedom::getTmpFolder('sonybravia') .'/sonybravia'.$mac.'.pid';
+		$pid_file =  jeedom::getTmpFolder('sonybravia') .'/sonybravia_'.$mac.'.pid';
 		if (file_exists($pid_file)) {
 			$pid = intval(trim(file_get_contents($pid_file)));
 			system::kill($pid);
@@ -92,8 +96,8 @@ class sonybravia extends eqLogic {
 		}
 		return $return;
 	}
-	
-	public static function tv_deamon_start($_ip, $_mac, $_psk){
+        
+        public static function tv_deamon_pin($_ip, $_mac, $_psk, $_cookie = false){
 		$deamon_info = self::deamon_info();
 		if ($deamon_info['state'] == 'ok') {
 			self::deamon_stop();
@@ -102,7 +106,37 @@ class sonybravia extends eqLogic {
 			throw new Exception(__('Veuillez vérifier la configuration', __FILE__));
 		}
 		$sonybravia_path = realpath(dirname(__FILE__) . '/../../resources');
-		$cmd = 'sudo /usr/bin/python3 ' . $sonybravia_path . '/sonybravia.py';
+                if ($_cookie == true){
+                    $cmd = 'sudo /usr/bin/python3 ' . $sonybravia_path . '/sonybravia_cookie.py';
+                    $cmd .= ' --tvip ' . $_ip;
+                    $cmd .= ' --mac ' . $_mac;
+                    $cmd .= ' --psk ' . $_psk;
+                    $cmd .= ' --jeedomadress ' . network::getNetworkAccess('internal', 'proto:127.0.0.1:port:comp') . '/plugins/sonybravia/core/php/jeesonybravia.php';
+                    $cmd .= ' --apikey ' . jeedom::getApiKey('sonybravia');
+                    log::add('sonybravia', 'info', 'Récupération du pin : ' . $cmd);
+                    $result = exec($cmd . ' >> ' . log::getPathToLog('sonybravia') . ' 2>&1 &');
+                    message::removeAll('sonybravia', 'unableStartDeamon');
+                    return true;		
+                }
+                log::add('sonybravia', 'error', __('Veuillez sélectionner le mode pin'), 'unableStartDeamon');
+                return false;
+	}
+	
+	public static function tv_deamon_start($_ip, $_mac, $_psk, $_cookie = false){
+		$deamon_info = self::deamon_info();
+		if ($deamon_info['state'] == 'ok') {
+			self::deamon_stop();
+		}
+		if ($deamon_info['launchable'] != 'ok') {
+			throw new Exception(__('Veuillez vérifier la configuration', __FILE__));
+		}
+		$sonybravia_path = realpath(dirname(__FILE__) . '/../../resources');
+                if ($_cookie == true){
+                    $cmd = 'sudo /usr/bin/python3 ' . $sonybravia_path . '/sonybravia_cookie.py';
+                }
+                else{
+                    $cmd = 'sudo /usr/bin/python3 ' . $sonybravia_path . '/sonybravia.py';
+                }
 		$cmd .= ' --tvip ' . $_ip;
 		$cmd .= ' --mac ' . $_mac;
 		$cmd .= ' --psk ' . $_psk;
@@ -129,7 +163,7 @@ class sonybravia extends eqLogic {
 	
 	public static function deamon_start() {
 		foreach (eqLogic::byType('sonybravia', true) as $eqLogic) {
-			self::tv_deamon_start($eqLogic->getConfiguration('ipadress'), $eqLogic->getLogicalId(),$eqLogic->getConfiguration('psk'));
+			self::tv_deamon_start($eqLogic->getConfiguration('ipadress'), $eqLogic->getLogicalId(),$eqLogic->getConfiguration('psk'),$eqLogic->getConfiguration('pin'));
 			sleep(1);
 		}	
 		return true;
@@ -185,7 +219,7 @@ class sonybravia extends eqLogic {
 	}*/
 
 	public function postSave() {
-		$refresh = $this->getCmd(null, 'refresh');
+		/*$refresh = $this->getCmd(null, 'refresh');
 		if (!is_object($refresh)) {
 			$refresh = new sonybraviaCmd();
 			$refresh->setLogicalId('refresh');
@@ -195,7 +229,7 @@ class sonybravia extends eqLogic {
 		$refresh->setType('action');
 		$refresh->setSubType('other');
 		$refresh->setEqLogic_id($this->getId());
-		$refresh->save();
+		$refresh->save();*/
 	}
 
 	public function copyFromEqLogic($_eqLogic_id) {
@@ -262,63 +296,10 @@ class sonybraviaCmd extends cmd {
 	}
 
 	public function preSave() {
-		if ($this->getLogicalId() == 'refresh') {
-			return;
-		}
 		if ($this->getConfiguration('sonybraviaAction') == 1) {
 			$actionInfo = sonybraviaCmd::byEqLogicIdCmdName($this->getEqLogic_id(), $this->getName());
 			if (is_object($actionInfo)) {
 				$this->setId($actionInfo->getId());
-			}
-		}
-		if ($this->getType() == 'action') {
-			if ($this->getConfiguration('infoName') == '') {
-				throw new Exception(__('Le nom de la commande info ne peut etre vide', __FILE__));
-			}
-			$cmd = cmd::byId(str_replace('#', '', $this->getConfiguration('infoName')));
-			if (is_object($cmd)) {
-				$this->setSubType($cmd->getSubType());
-			} else {
-				$actionInfo = sonybraviaCmd::byEqLogicIdCmdName($this->getEqLogic_id(), $this->getConfiguration('infoName'));
-				if (!is_object($actionInfo)) {
-					$actionInfo = new sonybraviaCmd();
-					$actionInfo->setType('info');
-					switch ($this->getSubType()) {
-						case 'slider':
-							$actionInfo->setSubType('numeric');
-							break;
-						default:
-							$actionInfo->setSubType('string');
-							break;
-					}
-				}
-				$actionInfo->setConfiguration('sonybraviaAction', 1);
-				$actionInfo->setName($this->getConfiguration('infoName'));
-				$actionInfo->setEqLogic_id($this->getEqLogic_id());
-				$actionInfo->save();
-				$this->setConfiguration('infoId', $actionInfo->getId());
-			}
-		} else {
-			$calcul = $this->getConfiguration('calcul');
-			if (strpos($calcul, '#' . $this->getId() . '#') !== false) {
-				throw new Exception(__('Vous ne pouvez faire un calcul sur la valeur elle meme (boucle infinie)!!!', __FILE__));
-			}
-			preg_match_all("/#([0-9]*)#/", $calcul, $matches);
-			$value = '';
-			foreach ($matches[1] as $cmd_id) {
-				if (is_numeric($cmd_id)) {
-					$cmd = self::byId($cmd_id);
-					if (is_object($cmd) && $cmd->getType() == 'info') {
-						$value .= '#' . $cmd_id . '#';
-					}
-				}
-			}
-			preg_match_all("/variable\((.*?)\)/", $calcul, $matches);
-			foreach ($matches[1] as $variable) {
-				$value .= '#variable(' . $variable . ')#';
-			}
-			if ($value != '') {
-				$this->setValue($value);
 			}
 		}
 	}
@@ -330,10 +311,6 @@ class sonybraviaCmd extends cmd {
 	}
 
 	public function execute($_options = null) {
-		if ($this->getLogicalId() == 'refresh') {
-			$this->getEqLogic()->refresh();
-			return;
-		}
 		switch ($this->getType()) {
 			case 'info':
 				if ($this->getConfiguration('sonybraviaAction', 0) == '0') {
@@ -359,39 +336,18 @@ class sonybraviaCmd extends cmd {
 				}
 				break;
 			case 'action':
-				$sonybraviaCmd = sonybraviaCmd::byId($this->getConfiguration('infoId'));
-				if (!is_object($sonybraviaCmd)) {
-					$cmds = explode('&&', $this->getConfiguration('infoName'));
-					if (is_array($cmds)) {
-						foreach ($cmds as $cmd_id) {
-							$cmd = cmd::byId(str_replace('#', '', $cmd_id));
-							if (is_object($cmd)) {
-								$cmd->execCmd($_options);
-							}
-						}
-						return;
-					} else {
-						$cmd = cmd::byId(str_replace('#', '', $this->getConfiguration('infoName')));
-						return $cmd->execCmd($_options);
-					}
-				} else {
-					if ($sonybraviaCmd->getEqType() != 'sonybravia') {
-						throw new Exception(__('La cible de la commande virtuel n\'est pas un équipement de type virtuel', __FILE__));
-					}
-					if ($this->getSubType() == 'slider') {
-						$value = $_options['slider'];
-					} else if ($this->getSubType() == 'color') {
-						$value = $_options['color'];
-					} else if ($this->getSubType() == 'select'){
-						$value = $_options['select'];
-					} else {
-						$value = $this->getConfiguration('value');
-					}
-					$result = jeedom::evaluateExpression($value);
-					if ($this->getSubtype() == 'message') {
-						$result = $_options['title'] . ' ' . $_options['message'];
-					}
-					$sonybraviaCmd->event($result);
+                                try {
+                                    $sonybravia = $this->getEqLogic();
+                                    $sonybravia_path = realpath(dirname(__FILE__) . '/../../resources');
+                                    $cmd = 'sudo /usr/bin/python3 ' . $sonybravia_path . '/sonybravia_send.py';
+                                    $cmd .= ' --tvip ' . $sonybravia->getConfiguration('ipadress');
+                                    $cmd .= ' --mac ' . $sonybravia->getLogicalId();
+                                    $cmd .= ' --psk ' . $sonybravia->getConfiguration('psk');
+                                    $cmd .= ' --command ' . $this->getLogicalId();
+                                    $cmd .= ' --commandparam ' . $this->getConfiguration('param');
+                                    $result = exec($cmd . ' >> ' . log::getPathToLog('sonybravia') . ' 2>&1 &');
+                                } catch (Exception $e) {
+                                    log::add('sonybravia', 'info', $e->getMessage());
 				}
 				break;
 		}

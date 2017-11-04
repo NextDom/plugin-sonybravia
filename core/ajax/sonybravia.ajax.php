@@ -23,7 +23,12 @@ try {
 	ajax::init();
 
 	if (init('action') == 'startdeamon') {
-		sonybravia::tv_deamon_start(init('ip'), init('mac'), init('psk'));
+		sonybravia::tv_deamon_start(init('ip'), init('mac'), init('psk'), init('cookie'));
+		ajax::success();
+	}
+        
+        if (init('action') == 'startdeamon_recuppin') {
+		sonybravia::tv_deamon_pin(init('ip'), init('mac'), init('psk'), init('cookie'));
 		ajax::success();
 	}
 	

@@ -2,7 +2,7 @@
 #
 #
 import os
-from bravia import BraviaRC
+from braviarc import BraviaRC
 import sys
 import time
 import threading
@@ -29,39 +29,37 @@ class SonyBravia:
 		self._psk = psk
 		self._apikey = apikey
 		self._jeedomadress = jeedomadress
-		self._braviainstance = BraviaRC(self._ipadress, self._psk, self._macadress)
+		self._braviainstance = BraviaRC(self._ipadress, self._macadress)
+		if self._braviainstance.connect(psk, 'Jeedom', 'Jeedom') == False:
+			print ("Récupération du pin")
+			sys.exit()
 
 	def run(self):
 		Donnees = {}
 		_Donnees = {}
-		_RAZ = datetime.now()
 		Sources = {}
 		Apps = {}
+		_RAZ = datetime.now()
 		_RazCalcul = 0
 		_Separateur = "&"
+		_tmp = ""
 		_SendData = ""
 		def target():
 			self.process = None
-			print (self.cmd + _SendData)
-			#logger.debug("Thread started, timeout = " + str(timeout)+", command : "+str(self.cmd))
+			#print (self.cmd + _SendData)
 			self.process = subprocess.Popen(self.cmd + _SendData, shell=True)
-			#print(self.cmd + _SendData)
 			self.process.communicate()
-			#logger.debug("Return code: " + str(self.process.returncode))
-			#logger.debug("Thread finished")
 			self.timer.cancel()
 
 		def timer_callback():
-			#logger.debug("Thread timeout, terminate it")
 			if self.process.poll() is None:
 				try:
 					self.process.kill()
 				except OSError as error:
-					#logger.error("Error: %s " % error)
-					self._log.error("Error: %s " % error)
-				self._log.warning("Thread terminated")
+					print ("Error: %s " % error)
+				print("Thread terminated")
 			else:
-				self._log.warning("Thread not alive")
+				print ("Thread not alive")
 		tvstatus = ""
 		try:
 			Sources = self._braviainstance.load_source_list()
@@ -74,7 +72,7 @@ class SonyBravia:
 			_tmp = ""
 			for cle, valeur in Apps.items():
 				_tmp += cle.replace(' ' , '%20') + "|"
-			print (_tmp)
+			#print (_tmp)
 			_tmp = _tmp.replace('&', '%26')
 			_tmp = _tmp.replace('\'', '%27')
 			Donnees["apps"] = _tmp
@@ -96,52 +94,45 @@ class SonyBravia:
 			except KeyError:
 				print('TV not found')
 				sys.exit()
-			
-			if tvstatus == 'active':
-				try:
-					tvinfo = self._braviainstance.get_system_info()
-					Donnees["model"] = tvinfo['model']
-				except:
-					print('Model not found')
+			try:
 				try:
 					vol = self._braviainstance.get_volume_info()
 					Donnees["volume"] = str(vol['volume'])
 				except:
 					print('Volume not found')
-				try:
-					tvPlaying = self._braviainstance.get_playing_info()
-					#print (tvPlaying)
-					if not tvPlaying:
-						Donnees["source"] = "Application"
-					else:
-						Donnees["source"] = ((tvPlaying['source'])[-4:]).upper() + (tvPlaying['uri'])[-1:]
-						try:
-							if tvPlaying['dispNum'] is not None :
-								Donnees["chaine"] = tvPlaying['dispNum']
-						except:
-							print('not found')
-						try:
-							if tvPlaying['programTitle'] is not None :
-								Donnees["program"] = tvPlaying['programTitle'].replace(' ','%20').replace('é','%C3%A9')
-						except:
-							print('not found')
-						try:
-							if tvPlaying['title'] is not None :
-								Donnees["nom_chaine"] = tvPlaying['title'].replace(' ','%20')
-						except:
-							print('not found')
-						try:
-							if tvPlaying['startDateTime'] is not None :
-								Donnees["debut"] = tvPlaying['startDateTime']
-						except:
-							print('not found')
-						try:
-							if tvPlaying['durationSec'] is not None :
-								Donnees["duree"] = str(tvPlaying['durationSec'])
-						except:
-							print('not found')
-				except:
-					print('Playing Info not found')
+				tvPlaying = self._braviainstance.get_playing_info()
+				#print (tvPlaying)
+				if not tvPlaying:
+					Donnees["source"] = "Application"
+				else:
+					Donnees["source"] = ((tvPlaying['source'])[-4:]).upper() + (tvPlaying['uri'])[-1:]
+					try:
+						if tvPlaying['dispNum'] is not None :
+							Donnees["chaine"] = tvPlaying['dispNum']
+					except:
+						print('not found')
+					try:
+						if tvPlaying['programTitle'] is not None :
+							Donnees["program"] = tvPlaying['programTitle'].replace(' ','%20').replace('é','%C3%A9')
+					except:
+						print('program not found')
+					try:
+						if tvPlaying['title'] is not None :
+							Donnees["nom_chaine"] = tvPlaying['title']
+					except:
+						print('not found')
+					try:
+						if tvPlaying['startDateTime'] is not None :
+							Donnees["debut"] = tvPlaying['startDateTime']
+					except:
+						print('not found')
+					try:
+						if tvPlaying['durationSec'] is not None :
+							Donnees["duree"] = str(tvPlaying['durationSec'])
+					except:
+						print('not found')
+			except:
+				print('Playing Info not found')
 			self.cmd = "curl -L -s -G --max-time 15 " + self._jeedomadress + " -d 'apikey=" + self._apikey + "&mac=" + self._macadress
 			for cle, valeur in Donnees.items():
 				if(cle in _Donnees):
@@ -158,22 +149,23 @@ class SonyBravia:
 					self.timer = threading.Timer(int(5), timer_callback)
 					self.timer.start()
 					thread.start()
-				except Exception:
+				except:
 					errorCom = "Connection error"
 			time.sleep(2)
 
 	def exit_handler(self, *args):
 		self.terminate()
+		#self._log.info("[exit_handler]")
 
 
 if __name__ == "__main__":
 	usage = "usage: %prog [options]"
 	parser = OptionParser(usage)
 	parser.add_option("-t", "--tvip", dest="ip", help="IP de la tv")
-	parser.add_option("-m", "--mac", dest="mac", help="IP de la tv")
+	parser.add_option("-m", "--mac", dest="mac", help="Mac de la tv")
 	parser.add_option("-s", "--psk", dest="psk", help="Cle")
-	parser.add_option("-k", "--apikey", dest="apikey", help="IP de la tv")
-	parser.add_option("-a", "--jeedomadress", dest="jeedomadress", help="IP de la tv")
+	parser.add_option("-k", "--apikey", dest="apikey", help="Cle jeedom")
+	parser.add_option("-a", "--jeedomadress", dest="jeedomadress", help="IP Jeedom")
 	(options, args) = parser.parse_args()
 	if options.ip:
 		try:

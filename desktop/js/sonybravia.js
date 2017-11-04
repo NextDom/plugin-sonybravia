@@ -136,7 +136,10 @@ $( ".deamoninfo" ).on('mouseenter', function() {
      tr += '<option value="volume">Volume</option>';
      tr += '<option value="source">Source</option>';
      tr += '<option value="chaine">Chaine</option>';
+     tr += '<option value="nom_chaine">Nom Chaine</option>';
      tr += '<option value="program">Programme</option>';
+     tr += '<option value="debut">Début du programme</option>';
+     tr += '<option value="duree">Durée</option>';
      tr += '</select></td>';
      //tr += '<td><input class="cmdAttr form-control input-sm" data-l1key="logicalId" style="width : 140px;" placeholder="{{logicalId}}"></td>';
      //tr += '<td><textarea class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="calcul" style="height : 33px;" ' + disabled + ' placeholder="{{Calcul}}"></textarea>';
@@ -192,22 +195,23 @@ if (init(_cmd.type) == 'action') {
     tr += '<span class="subType" subType="' + init(_cmd.subType) + '"></span>';
     tr += '<input class="cmdAttr" data-l1key="configuration" data-l2key="sonybraviaAction" value="1" style="display:none;" >';
     tr += '</td>';
-    tr += '<td><input class="cmdAttr form-control input-sm" data-l1key="logicalId" style="width : 140px;" placeholder="{{logicalId}}"></td>';
+    tr += '<td><select id="select_actions" style="width : 140px;" class="cmdAttr form-control input-sm" data-l1key="logicalId">';
+    tr += '<option value="turn_on">Allumer</option>';
+    tr += '<option value="turn_off">Eteindre</option>';
+    tr += '<option value="volume_up">Vol haut</option>';
+    tr += '<option value="volume_down">Vol bas</option>';
+    tr += '<option value="mute_volume">Mute</option>';
+    tr += '<option value="start_app">Démarrer une application</option>';
+    tr += '<option value="ircc">RAW</option>';
+    tr += '</select></td>';
     tr += '<td>';
-    tr += '<input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="infoName" placeholder="{{Nom information}}" style="margin-bottom : 5px;width : 70%; display : inline-block;" />';
-    tr += '<a class="btn btn-default btn-sm cursor listEquipementAction" data-input="infoName" style="margin-left : 5px;"><i class="fa fa-list-alt "></i> {{Rechercher équipement}}</a>';
-    tr += '<input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="value" placeholder="{{Valeur}}" style="margin-bottom : 5px;width : 50%; display : inline-block;" />';
-    tr += '<a class="btn btn-default btn-sm cursor listEquipementInfo" data-input="value" style="margin-left : 5px;"><i class="fa fa-list-alt "></i> {{Rechercher équipement}}</a>';
+    tr += '<input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="param" placeholder="{{Nom information}}" style="margin-bottom : 5px;width : 70%; display : inline-block;" />';
     tr += '</td>';
     tr += '<td>';
     tr += '<select class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="updateCmdId" style="display : none;margin-top : 5px;" title="Commande d\'information à mettre à jour">';
     tr += '<option value="">Aucune</option>';
     tr += '</select>';
-    //tr += '<input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="updateCmdToValue" placeholder="Valeur de l\'information" style="display : none;margin-top : 5px;">';
     tr += '<span><label class="checkbox-inline"><input type="checkbox" class="cmdAttr checkbox-inline" data-l1key="isVisible" checked/>{{Afficher}}</label></span> ';
-    //tr += '<input class="tooltips cmdAttr form-control input-sm expertModeVisible" data-l1key="configuration" data-l2key="listValue" placeholder="{{Liste de valeur|texte séparé par ;}}" title="{{Liste}}" style="margin-top : 5px;">';
-    //tr += '<input class="tooltips cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="minValue" placeholder="{{Min}}" title="{{Min}}" style="width : 40%;display : inline-block;" /> ';
-    //tr += '<input class="tooltips cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="maxValue" placeholder="{{Max}}" title="{{Max}}" style="width : 40%;display : inline-block;" />';
     tr += '</td>';
     tr += '<td>';
     if (is_numeric(_cmd.id)) {
@@ -235,3 +239,38 @@ if (init(_cmd.type) == 'action') {
     });
 }
 }
+
+if($("#checkbox_psk").is(':checked'))
+{
+    $( 'input[data-l2key="psk"]').prop('disabled', true);
+    //$( '.gettvpin').removeAttr("disabled");
+    //$( '.startdeamontv').removeAttr("disabled");
+    $( '.gettvpin').hide();
+    $( '.startdeamontv').hide();
+}
+
+
+$('#checkbox_psk').change(function() {
+    if($("#checkbox_psk").is(':checked'))
+    {
+        $('input[data-l2key="psk"]').prop('disabled', true);
+        $( '.gettvpin').removeAttr("disabled");
+        $( '.startdeamontv').removeAttr("disabled");
+        $( '.gettvpin').show();
+        $( '.startdeamontv').show();
+    }
+    else{
+        $('input[data-l2key="psk"]').prop('disabled', false);
+        $( '.gettvpin').hide();
+        $( '.startdeamontv').hide();
+        //$( '.gettvpin').attr("disabled","disabled");
+        //$( '.startdeamontv').attr("disabled","disabled");
+    }
+}); 
+
+$('#checkbox_psk').change(function() {
+    if ($( 'input[data-l2key="psk"]').value() == ""){
+    $('input[data-l2key="psk"]').value("1234");
+}
+});
+
