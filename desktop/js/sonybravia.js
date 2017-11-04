@@ -136,7 +136,10 @@ $( ".deamoninfo" ).on('mouseenter', function() {
      tr += '<option value="volume">Volume</option>';
      tr += '<option value="source">Source</option>';
      tr += '<option value="chaine">Chaine</option>';
+     tr += '<option value="nom_chaine">Nom Chaine</option>';
      tr += '<option value="program">Programme</option>';
+     tr += '<option value="debut">Début du programme</option>';
+     tr += '<option value="duree">Durée</option>';
      tr += '</select></td>';
      //tr += '<td><input class="cmdAttr form-control input-sm" data-l1key="logicalId" style="width : 140px;" placeholder="{{logicalId}}"></td>';
      //tr += '<td><textarea class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="calcul" style="height : 33px;" ' + disabled + ' placeholder="{{Calcul}}"></textarea>';
@@ -198,6 +201,8 @@ if (init(_cmd.type) == 'action') {
     tr += '<option value="volume_up">Vol haut</option>';
     tr += '<option value="volume_down">Vol bas</option>';
     tr += '<option value="mute_volume">Mute</option>';
+    tr += '<option value="start_app">Démarrer une application</option>';
+    tr += '<option value="ircc">RAW</option>';
     tr += '</select></td>';
     tr += '<td>';
     tr += '<input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="param" placeholder="{{Nom information}}" style="margin-bottom : 5px;width : 70%; display : inline-block;" />';

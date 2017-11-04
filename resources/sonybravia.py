@@ -35,14 +35,17 @@ class SonyBravia:
 		Donnees = {}
 		_Donnees = {}
 		_RAZ = datetime.now()
+		Sources = {}
+		Apps = {}
 		_RazCalcul = 0
 		_Separateur = "&"
 		_SendData = ""
 		def target():
 			self.process = None
+			print (self.cmd + _SendData)
 			#logger.debug("Thread started, timeout = " + str(timeout)+", command : "+str(self.cmd))
 			self.process = subprocess.Popen(self.cmd + _SendData, shell=True)
-			#print(self.cmd)
+			#print(self.cmd + _SendData)
 			self.process.communicate()
 			#logger.debug("Return code: " + str(self.process.returncode))
 			#logger.debug("Thread finished")
@@ -60,6 +63,23 @@ class SonyBravia:
 			else:
 				self._log.warning("Thread not alive")
 		tvstatus = ""
+		try:
+			Sources = self._braviainstance.load_source_list()
+			Apps = self._braviainstance.load_app_list()
+			for cle, valeur in Sources.items():
+				_tmp += cle.replace(' ' , '%20')
+				_tmp += "|"
+			#print (_tmp)
+			Donnees["sources"] = _tmp
+			_tmp = ""
+			for cle, valeur in Apps.items():
+				_tmp += cle.replace(' ' , '%20') + "|"
+			print (_tmp)
+			_tmp = _tmp.replace('&', '%26')
+			_tmp = _tmp.replace('\'', '%27')
+			Donnees["apps"] = _tmp
+		except Exception:
+					errorCom = "Connection error"
 		while(1):
 			_RazCalcul = datetime.now() - _RAZ
 			if(_RazCalcul.seconds > 8):
@@ -78,39 +98,59 @@ class SonyBravia:
 				sys.exit()
 			
 			if tvstatus == 'active':
-			#print(json.dumps(test, indent=2))
-				tvinfo = self._braviainstance.get_system_info()
-				#print('TV model:', tvinfo['model'])
-				Donnees["model"] = tvinfo['model']
-				vol = self._braviainstance.get_volume_info()
-				Donnees["volume"] = str(vol['volume'])
-				#print('Volume:', vol['volume'])
-				tvPlaying = self._braviainstance.get_playing_info()
-				#print(self._braviainstance.get_playing_info())
-				if not tvPlaying:
-					#print("Netflix")
-					Donnees["source"] = "Netflix"
-				else:
-					if(tvPlaying['source'] == "tv:analog"):
-						Donnees["source"] = ("TV").upper()
-						Donnees["chaine"] = tvPlaying['dispNum']
-						Donnees["program"] = tvPlaying['title']
+				try:
+					tvinfo = self._braviainstance.get_system_info()
+					Donnees["model"] = tvinfo['model']
+				except:
+					print('Model not found')
+				try:
+					vol = self._braviainstance.get_volume_info()
+					Donnees["volume"] = str(vol['volume'])
+				except:
+					print('Volume not found')
+				try:
+					tvPlaying = self._braviainstance.get_playing_info()
+					#print (tvPlaying)
+					if not tvPlaying:
+						Donnees["source"] = "Application"
 					else:
 						Donnees["source"] = ((tvPlaying['source'])[-4:]).upper() + (tvPlaying['uri'])[-1:]
-			#else:
-				#print('TV status:', tvstatus) #status is standby net na het uitzetten, daarna niet meer bereikbaar
+						try:
+							if tvPlaying['dispNum'] is not None :
+								Donnees["chaine"] = tvPlaying['dispNum']
+						except:
+							print('not found')
+						try:
+							if tvPlaying['programTitle'] is not None :
+								Donnees["program"] = tvPlaying['programTitle'].replace(' ','%20').replace('é','%C3%A9')
+						except:
+							print('not found')
+						try:
+							if tvPlaying['title'] is not None :
+								Donnees["nom_chaine"] = tvPlaying['title'].replace(' ','%20')
+						except:
+							print('not found')
+						try:
+							if tvPlaying['startDateTime'] is not None :
+								Donnees["debut"] = tvPlaying['startDateTime']
+						except:
+							print('not found')
+						try:
+							if tvPlaying['durationSec'] is not None :
+								Donnees["duree"] = str(tvPlaying['durationSec'])
+						except:
+							print('not found')
+				except:
+					print('Playing Info not found')
 			self.cmd = "curl -L -s -G --max-time 15 " + self._jeedomadress + " -d 'apikey=" + self._apikey + "&mac=" + self._macadress
-			#self.cmd = "curl -L -s -G --max-time 15 " + self._jeedomadress + " -d 'apikey=" + self._apikey + "&mac=" + self._macadress + "&model=" + tvinfo['model'] + "&status=" + tvstatus + "&vol=" + vol + "'"
-			#self.cmd = "curl -L -s -G --max-time 15 " + self._jeedomadress +"/plugins/sonybravia/core/php/jeesonybravia.php -d 'apikey=" + self._apikey + "&status=" + tvstatus + "'"
-			#cmd = 'nice -n 19 timeout 15 /usr/bin/php /var/www/html/plugins/sonybravia/core/class/../php/jeesonybravia.php api=' + self._apikey + " status=" + tvstatus
 			for cle, valeur in Donnees.items():
 				if(cle in _Donnees):
-                                    if (Donnees[cle] != _Donnees[cle]):
-                                        _SendData += _Separateur + cle +'='+ valeur
-                                        _Donnees[cle] = valeur
+					if (Donnees[cle] != _Donnees[cle]):
+						_SendData += _Separateur + cle +'='+ valeur
+						_Donnees[cle] = valeur
 				else:
-                                    _SendData += _Separateur + cle +'='+ valeur
-                                    _Donnees[cle] = valeur
+					_SendData += _Separateur + cle +'='+ valeur
+					_Donnees[cle] = valeur
 			_SendData += "'"
 			if _SendData != "'":
 				try:
@@ -124,7 +164,6 @@ class SonyBravia:
 
 	def exit_handler(self, *args):
 		self.terminate()
-		#self._log.info("[exit_handler]")
 
 
 if __name__ == "__main__":

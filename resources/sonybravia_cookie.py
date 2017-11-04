@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
 #
 #
-try:
-    import Domoticz
-except ImportError:
-    import fakeDomoticz as Domoticz
-
 import os
 from braviarc import BraviaRC
 import sys
@@ -51,6 +46,7 @@ class SonyBravia:
 		_SendData = ""
 		def target():
 			self.process = None
+			#print (self.cmd + _SendData)
 			self.process = subprocess.Popen(self.cmd + _SendData, shell=True)
 			self.process.communicate()
 			self.timer.cancel()
@@ -60,28 +56,26 @@ class SonyBravia:
 				try:
 					self.process.kill()
 				except OSError as error:
-					self._log.error("Error: %s " % error)
-				self._log.warning("Thread terminated")
+					print ("Error: %s " % error)
+				print("Thread terminated")
 			else:
-				self._log.warning("Thread not alive")
+				print ("Thread not alive")
 		tvstatus = ""
 		try:
 			Sources = self._braviainstance.load_source_list()
 			Apps = self._braviainstance.load_app_list()
 			for cle, valeur in Sources.items():
-				_tmp += cle.replace(' ' , '-')
+				_tmp += cle.replace(' ' , '%20')
 				_tmp += "|"
 			#print (_tmp)
 			Donnees["sources"] = _tmp
 			_tmp = ""
 			for cle, valeur in Apps.items():
-				_tmp += cle + "|"
+				_tmp += cle.replace(' ' , '%20') + "|"
 			#print (_tmp)
+			_tmp = _tmp.replace('&', '%26')
+			_tmp = _tmp.replace('\'', '%27')
 			Donnees["apps"] = _tmp
-			#file = open("/tmp/jeedom/sonybravia/sonybravia_apps", "w")
-			#file.write("%s\n" % _tmp) 
-			#file.close()
-			
 		except Exception:
 					errorCom = "Connection error"
 		while(1):
@@ -100,41 +94,54 @@ class SonyBravia:
 			except KeyError:
 				print('TV not found')
 				sys.exit()
-			
-			if tvstatus == 'active':
-			#print(json.dumps(test, indent=2))
-				tvinfo = self._braviainstance.get_system_info()
-				#print('TV model:', tvinfo['model'])
-				Donnees["model"] = tvinfo['model']
-				vol = self._braviainstance.get_volume_info()
-				Donnees["volume"] = str(vol['volume'])
-				#print('Volume:', vol['volume'])
+			try:
+				try:
+					vol = self._braviainstance.get_volume_info()
+					Donnees["volume"] = str(vol['volume'])
+				except:
+					print('Volume not found')
 				tvPlaying = self._braviainstance.get_playing_info()
-				#print(self._braviainstance.get_playing_info())
+				#print (tvPlaying)
 				if not tvPlaying:
-					#print("Netflix")
-					Donnees["source"] = "Netflix"
+					Donnees["source"] = "Application"
 				else:
-					if(tvPlaying['source'] == "tv:analog"):
-						Donnees["source"] = ("TV").upper()
-						Donnees["chaine"] = tvPlaying['dispNum']
-						Donnees["program"] = tvPlaying['title']
-					else:
-						Donnees["source"] = ((tvPlaying['source'])[-4:]).upper() + (tvPlaying['uri'])[-1:]
-			#else:
-				#print('TV status:', tvstatus) #status is standby net na het uitzetten, daarna niet meer bereikbaar
+					Donnees["source"] = ((tvPlaying['source'])[-4:]).upper() + (tvPlaying['uri'])[-1:]
+					try:
+						if tvPlaying['dispNum'] is not None :
+							Donnees["chaine"] = tvPlaying['dispNum']
+					except:
+						print('not found')
+					try:
+						if tvPlaying['programTitle'] is not None :
+							Donnees["program"] = tvPlaying['programTitle'].replace(' ','%20').replace('é','%C3%A9')
+					except:
+						print('program not found')
+					try:
+						if tvPlaying['title'] is not None :
+							Donnees["nom_chaine"] = tvPlaying['title']
+					except:
+						print('not found')
+					try:
+						if tvPlaying['startDateTime'] is not None :
+							Donnees["debut"] = tvPlaying['startDateTime']
+					except:
+						print('not found')
+					try:
+						if tvPlaying['durationSec'] is not None :
+							Donnees["duree"] = str(tvPlaying['durationSec'])
+					except:
+						print('not found')
+			except:
+				print('Playing Info not found')
 			self.cmd = "curl -L -s -G --max-time 15 " + self._jeedomadress + " -d 'apikey=" + self._apikey + "&mac=" + self._macadress
-			#self.cmd = "curl -L -s -G --max-time 15 " + self._jeedomadress + " -d 'apikey=" + self._apikey + "&mac=" + self._macadress + "&model=" + tvinfo['model'] + "&status=" + tvstatus + "&vol=" + vol + "'"
-			#self.cmd = "curl -L -s -G --max-time 15 " + self._jeedomadress +"/plugins/sonybravia/core/php/jeesonybravia.php -d 'apikey=" + self._apikey + "&status=" + tvstatus + "'"
-			#cmd = 'nice -n 19 timeout 15 /usr/bin/php /var/www/html/plugins/sonybravia/core/class/../php/jeesonybravia.php api=' + self._apikey + " status=" + tvstatus
 			for cle, valeur in Donnees.items():
 				if(cle in _Donnees):
-                                    if (Donnees[cle] != _Donnees[cle]):
-                                        _SendData += _Separateur + cle +'='+ valeur
-                                        _Donnees[cle] = valeur
+					if (Donnees[cle] != _Donnees[cle]):
+						_SendData += _Separateur + cle +'='+ valeur
+						_Donnees[cle] = valeur
 				else:
-                                    _SendData += _Separateur + cle +'='+ valeur
-                                    _Donnees[cle] = valeur
+					_SendData += _Separateur + cle +'='+ valeur
+					_Donnees[cle] = valeur
 			_SendData += "'"
 			if _SendData != "'":
 				try:
@@ -142,7 +149,7 @@ class SonyBravia:
 					self.timer = threading.Timer(int(5), timer_callback)
 					self.timer.start()
 					thread.start()
-				except Exception:
+				except:
 					errorCom = "Connection error"
 			time.sleep(2)
 

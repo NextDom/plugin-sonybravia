@@ -78,6 +78,10 @@ try:
 		_braviainstance.media_previous_track()
 	if command_type == 'media_next_track':
 		_braviainstance.media_next_track()
+	if command_type == 'start_app':
+		_braviainstance.start_app(command_param)
+	if command_type == 'ircc':
+		_braviainstance.send_req_ircc(command_param)
 	sys.exit()
 except KeyError:
     print('TV not found')
