@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
 #
 #
-try:
-    import Domoticz
-except ImportError:
-    import fakeDomoticz as Domoticz
-
 import os
 from bravia import BraviaRC
 import sys
@@ -17,11 +12,11 @@ import signal
 import subprocess
 
 ### Enter the IP address, PSK and MAC address of the TV below
-ip = '192.168.1.36'
-psk = 'sony'
-mac = '90:CD:B6:41:F5:2F'
+ip = ''
+psk = ''
+mac = ''
 apikey = ''
-jeedomadress = '192.168.1.2'
+jeedomadress = ''
 
 class SonyBravia:
 	""" Fetch teleinformation datas and call user callback
