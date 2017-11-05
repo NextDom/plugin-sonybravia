@@ -24,7 +24,7 @@ class sonybravia extends eqLogic {
 		$return = array();
 		$return['log'] = 'sonybravia_update';
 		$return['progress_file'] = jeedom::getTmpFolder('sonybravia') . '/dependance';
-		if(strpos(exec('python3 --version'), 'Python 3.5') !== false){
+		if(strpos(exec('python3 --version'), 'Python 3') !== false){
 			$return['state'] = 'ok';
 		} else {
 			$return['state'] = 'nok';
@@ -46,7 +46,6 @@ class sonybravia extends eqLogic {
                 $return['launchable'] = 'ok';
 		$retour = true;
 		foreach (eqLogic::byType('sonybravia', true) as $eqLogic) {
-			//log::add('sonybravia', 'debug', sonybravia::tv_deamon_info("90:CD:B6:41:F5:2F"));
 			$_retour = sonybravia::tv_deamon_info($eqLogic->getLogicalId());
 			if (!$_retour)
 				$retour = false;
