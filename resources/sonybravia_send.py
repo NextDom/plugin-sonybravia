@@ -56,7 +56,7 @@ try:
 		_braviainstance.turn_on()
 	if command_type == 'turn_off':
 		_braviainstance.turn_off()
-	if command_type == 'set_source':
+	if command_type == 'select_source':
 		_braviainstance.select_source(command_param)
 	if command_type == 'set_volume':
 		_braviainstance.set_volume_level(command_param)

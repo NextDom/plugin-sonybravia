@@ -347,7 +347,7 @@ class sonybraviaCmd extends cmd {
                                     $cmd .= ' --psk ' . $sonybravia->getConfiguration('psk');
                                     $cmd .= ' --command ' . $this->getLogicalId();
                                     if($this->getConfiguration('param') !== ""){
-                                        $cmd .= ' --commandparam ' . $this->getConfiguration('param');
+                                        $cmd .= " --commandparam '" . $this->getConfiguration('param') . "'";
                                     }
                                     $result = exec($cmd . ' >> ' . log::getPathToLog('sonybravia') . ' 2>&1 &');
                                 } catch (Exception $e) {

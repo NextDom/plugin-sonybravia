@@ -385,7 +385,7 @@ class BraviaRC:
         if hr >= 24: #set 24:10 to 00:10
             hr -= 24
         return ("%02d:%02d" % (hr, min))
-    
+
     def playing_time(self, startDateTime, durationSec):
         """Give starttime, endtime and percentage played."""
         #get starttime (2017-03-24T00:00:00+0100) and calculate endtime with duration (secs)

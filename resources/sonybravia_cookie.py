@@ -133,14 +133,23 @@ class SonyBravia:
 							print('not found')
 						try:
 							if tvPlaying['startDateTime'] is not None :
-								Donnees["debut"] = tvPlaying['startDateTime']
+								if tvPlaying['startDateTime'] != '':
+									Donnees["debut"] = tvPlaying['startDateTime']
+									Donnees["debut_p"], Donnees["fin_p"], Donnees["pourcent_p"] = self._braviainstance.playing_time(tvPlaying['startDateTime'],tvPlaying['durationSec'])
+								else:
+									Donnees["debut_p"] = ''
+									Donnees["fin_p"] = ''
+									Donnees["pourcent_p"] = '0'
 						except:
-							print('not found')
+							print('start date not found')
 						try:
 							if tvPlaying['durationSec'] is not None :
-								Donnees["duree"] = str(tvPlaying['durationSec'])
+								if tvPlaying['durationSec'] != '':
+									Donnees["duree"] = str(tvPlaying['durationSec'])
+								else:
+									Donnees["duree"] = '0'
 						except:
-							print('not found')
+							print('duration not found')
 				except:
 					print('Playing Info not found')
 			self.cmd = "curl -L -s -G --max-time 15 " + self._jeedomadress + " -d 'apikey=" + self._apikey + "&mac=" + self._macadress
