@@ -46,7 +46,7 @@ class SonyBravia:
 		_SendData = ""
 		def target():
 			self.process = None
-			print (self.cmd + _SendData)
+			#print (self.cmd + _SendData)
 			self.process = subprocess.Popen(self.cmd + _SendData, shell=True)
 			self.process.communicate()
 			self.timer.cancel()

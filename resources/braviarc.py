@@ -13,6 +13,9 @@ import json
 import socket
 import struct
 import requests
+from datetime import datetime
+import time
+import sys
 
 TIMEOUT = 10
 
@@ -390,6 +393,18 @@ class BraviaRC:
     def media_previous_track(self):
         """Send the previous track command."""
         self.send_req_ircc(self.get_command_code('Prev'))
+
+    def calc_time(self, *times):
+        """Calculate the sum of times, value is returned in HH:MM."""
+        totalSecs = 0
+        for tm in times:
+            timeParts = [int(s) for s in tm.split(':')]
+            totalSecs += (timeParts[0] * 60 + timeParts[1]) * 60 + timeParts[2]
+        totalSecs, sec = divmod(totalSecs, 60)
+        hr, min = divmod(totalSecs, 60)
+        if hr >= 24: #set 24:10 to 00:10
+            hr -= 24
+        return ("%02d:%02d" % (hr, min))
 
     def playing_time(self, startDateTime, durationSec):
         """Give starttime, endtime and percentage played."""

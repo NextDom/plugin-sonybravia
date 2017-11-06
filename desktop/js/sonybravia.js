@@ -142,6 +142,8 @@ $( ".deamoninfo" ).on('mouseenter', function() {
      tr += '<option value="fin_p">Fin du programme</option>';
      tr += '<option value="pourcent_p">Pourcentage d\'achèvement</option>';
      tr += '<option value="duree">Durée</option>';
+     tr += '<option value="sources">Liste des sources</option>';
+     tr += '<option value="apps">Liste des applications</option>';
      tr += '</select></td>';
      //tr += '<td><input class="cmdAttr form-control input-sm" data-l1key="logicalId" style="width : 140px;" placeholder="{{logicalId}}"></td>';
      //tr += '<td><textarea class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="calcul" style="height : 33px;" ' + disabled + ' placeholder="{{Calcul}}"></textarea>';

@@ -92,15 +92,12 @@ class BraviaRC:
                 response = response.read()
 
         except urllib.error.HTTPError as exception_instance:
-            Domoticz.Debug("[bravia_connect] HTTPError: " + str(exception_instance))
             return False
 
         except Exception as exception_instance:  # pylint: disable=broad-except
-            Domoticz.Debug("[bravia_connect] Exception: " + str(exception_instance))
             return False
 
         else:
-            Domoticz.Debug(str(response))
             #self._cookies = response.cookies
             return True
 
