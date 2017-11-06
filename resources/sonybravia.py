@@ -92,11 +92,9 @@ class SonyBravia:
 			try:
 				tvstatus = self._braviainstance.get_power_status()
 				Donnees["status"] = tvstatus
-				#print('Status TV:', tvstatus)
 			except KeyError:
 				print('TV not found')
 				sys.exit()
-			
 			if tvstatus == 'active':
 				try:
 					tvinfo = self._braviainstance.get_system_info()
@@ -113,6 +111,11 @@ class SonyBravia:
 					#print (tvPlaying)
 					if not tvPlaying:
 						Donnees["source"] = "Application"
+						Donnees["program"] = ""
+						Donnees["nom_chaine"] = ""
+						Donnees["debut"] = ""
+						Donnees["duree"] = ""
+						Donnees["chaine"] = ""
 					else:
 						Donnees["source"] = ((tvPlaying['source'])[-4:]).upper() + (tvPlaying['uri'])[-1:]
 						try:

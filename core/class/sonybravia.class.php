@@ -301,6 +301,9 @@ class sonybraviaCmd extends cmd {
 				$this->setId($actionInfo->getId());
 			}
 		}
+                /*if ($this->getLogicalId() == "turn_on" || $this->getLogicalId() == "turn_off" || $this->getLogicalId() == "volume_up" || $this->getLogicalId() == "volume_down"  || $this->getLogicalId() == "mute_volume") {
+			$this->setConfiguration('param', '1');
+		}*/
 	}
 
 	public function postSave() {
@@ -343,7 +346,9 @@ class sonybraviaCmd extends cmd {
                                     $cmd .= ' --mac ' . $sonybravia->getLogicalId();
                                     $cmd .= ' --psk ' . $sonybravia->getConfiguration('psk');
                                     $cmd .= ' --command ' . $this->getLogicalId();
-                                    $cmd .= ' --commandparam ' . $this->getConfiguration('param');
+                                    if($this->getConfiguration('param') !== ""){
+                                        $cmd .= ' --commandparam ' . $this->getConfiguration('param');
+                                    }
                                     $result = exec($cmd . ' >> ' . log::getPathToLog('sonybravia') . ' 2>&1 &');
                                 } catch (Exception $e) {
                                     log::add('sonybravia', 'info', $e->getMessage());

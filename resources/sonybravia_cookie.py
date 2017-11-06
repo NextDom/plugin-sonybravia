@@ -46,7 +46,7 @@ class SonyBravia:
 		_SendData = ""
 		def target():
 			self.process = None
-			#print (self.cmd + _SendData)
+			print (self.cmd + _SendData)
 			self.process = subprocess.Popen(self.cmd + _SendData, shell=True)
 			self.process.communicate()
 			self.timer.cancel()
@@ -90,49 +90,59 @@ class SonyBravia:
 			try:
 				tvstatus = self._braviainstance.get_power_status()
 				Donnees["status"] = tvstatus
-				#print('Status TV:', tvstatus)
 			except KeyError:
 				print('TV not found')
 				sys.exit()
-			try:
+			if tvstatus == 'active':
+				try:
+					tvinfo = self._braviainstance.get_system_info()
+					Donnees["model"] = tvinfo['model']
+				except:
+					print('Model not found')
 				try:
 					vol = self._braviainstance.get_volume_info()
 					Donnees["volume"] = str(vol['volume'])
 				except:
 					print('Volume not found')
-				tvPlaying = self._braviainstance.get_playing_info()
-				#print (tvPlaying)
-				if not tvPlaying:
-					Donnees["source"] = "Application"
-				else:
-					Donnees["source"] = ((tvPlaying['source'])[-4:]).upper() + (tvPlaying['uri'])[-1:]
-					try:
-						if tvPlaying['dispNum'] is not None :
-							Donnees["chaine"] = tvPlaying['dispNum']
-					except:
-						print('not found')
-					try:
-						if tvPlaying['programTitle'] is not None :
-							Donnees["program"] = tvPlaying['programTitle'].replace(' ','%20').replace('é','%C3%A9')
-					except:
-						print('program not found')
-					try:
-						if tvPlaying['title'] is not None :
-							Donnees["nom_chaine"] = tvPlaying['title']
-					except:
-						print('not found')
-					try:
-						if tvPlaying['startDateTime'] is not None :
-							Donnees["debut"] = tvPlaying['startDateTime']
-					except:
-						print('not found')
-					try:
-						if tvPlaying['durationSec'] is not None :
-							Donnees["duree"] = str(tvPlaying['durationSec'])
-					except:
-						print('not found')
-			except:
-				print('Playing Info not found')
+				try:
+					tvPlaying = self._braviainstance.get_playing_info()
+					#print (tvPlaying)
+					if not tvPlaying:
+						Donnees["source"] = "Application"
+						Donnees["program"] = ""
+						Donnees["nom_chaine"] = ""
+						Donnees["debut"] = ""
+						Donnees["duree"] = ""
+						Donnees["chaine"] = ""
+					else:
+						Donnees["source"] = ((tvPlaying['source'])[-4:]).upper() + (tvPlaying['uri'])[-1:]
+						try:
+							if tvPlaying['dispNum'] is not None :
+								Donnees["chaine"] = tvPlaying['dispNum']
+						except:
+							print('not found')
+						try:
+							if tvPlaying['programTitle'] is not None :
+								Donnees["program"] = tvPlaying['programTitle'].replace(' ','%20').replace('é','%C3%A9')
+						except:
+							print('program not found')
+						try:
+							if tvPlaying['title'] is not None :
+								Donnees["nom_chaine"] = tvPlaying['title'].replace(' ','%20')
+						except:
+							print('not found')
+						try:
+							if tvPlaying['startDateTime'] is not None :
+								Donnees["debut"] = tvPlaying['startDateTime']
+						except:
+							print('not found')
+						try:
+							if tvPlaying['durationSec'] is not None :
+								Donnees["duree"] = str(tvPlaying['durationSec'])
+						except:
+							print('not found')
+				except:
+					print('Playing Info not found')
 			self.cmd = "curl -L -s -G --max-time 15 " + self._jeedomadress + " -d 'apikey=" + self._apikey + "&mac=" + self._macadress
 			for cle, valeur in Donnees.items():
 				if(cle in _Donnees):
@@ -155,7 +165,6 @@ class SonyBravia:
 
 	def exit_handler(self, *args):
 		self.terminate()
-		#self._log.info("[exit_handler]")
 
 
 if __name__ == "__main__":

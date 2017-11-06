@@ -130,7 +130,7 @@ $( ".deamoninfo" ).on('mouseenter', function() {
      tr += '<input class="cmdAttr form-control type input-sm" data-l1key="type" value="info" disabled style="margin-bottom : 5px;" />';
      tr += '<span class="subType" subType="' + init(_cmd.subType) + '"></span>';
      tr += '</td>';
-     tr += '<td><select style="width : 140px;" class="cmdAttr form-control input-sm" data-l1key="logicalId">';
+     tr += '<td><select style="width : 200px;" class="cmdAttr form-control input-sm" data-l1key="logicalId">';
      tr += '<option value="model">Model</option>';
      tr += '<option value="status">Etat</option>';
      tr += '<option value="volume">Volume</option>';
@@ -195,7 +195,7 @@ if (init(_cmd.type) == 'action') {
     tr += '<span class="subType" subType="' + init(_cmd.subType) + '"></span>';
     tr += '<input class="cmdAttr" data-l1key="configuration" data-l2key="sonybraviaAction" value="1" style="display:none;" >';
     tr += '</td>';
-    tr += '<td><select id="select_actions" style="width : 140px;" class="cmdAttr form-control input-sm" data-l1key="logicalId">';
+    tr += '<td><select style="width : 200px;" class="cmdAttr form-control input-sm" data-l1key="logicalId">';
     tr += '<option value="turn_on">Allumer</option>';
     tr += '<option value="turn_off">Eteindre</option>';
     tr += '<option value="volume_up">Vol haut</option>';
