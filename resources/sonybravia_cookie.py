@@ -112,6 +112,9 @@ class SonyBravia:
 						Donnees["program"] = ""
 						Donnees["nom_chaine"] = ""
 						Donnees["debut"] = ""
+						Donnees["debut_p"] = ""
+						Donnees["fin_p"] = ''
+						Donnees["pourcent_p"] = '0'
 						Donnees["duree"] = ""
 						Donnees["chaine"] = ""
 					else:
