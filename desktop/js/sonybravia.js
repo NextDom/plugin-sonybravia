@@ -130,7 +130,7 @@ $( ".deamoninfo" ).on('mouseenter', function() {
      tr += '<input class="cmdAttr form-control type input-sm" data-l1key="type" value="info" disabled style="margin-bottom : 5px;" />';
      tr += '<span class="subType" subType="' + init(_cmd.subType) + '"></span>';
      tr += '</td>';
-     tr += '<td><select style="width : 140px;" class="cmdAttr form-control input-sm" data-l1key="logicalId">';
+     tr += '<td><select style="width : 200px;" class="cmdAttr form-control input-sm" data-l1key="logicalId">';
      tr += '<option value="model">Model</option>';
      tr += '<option value="status">Etat</option>';
      tr += '<option value="volume">Volume</option>';
@@ -138,8 +138,12 @@ $( ".deamoninfo" ).on('mouseenter', function() {
      tr += '<option value="chaine">Chaine</option>';
      tr += '<option value="nom_chaine">Nom Chaine</option>';
      tr += '<option value="program">Programme</option>';
-     tr += '<option value="debut">Début du programme</option>';
+     tr += '<option value="debut_p">Début du programme</option>';
+     tr += '<option value="fin_p">Fin du programme</option>';
+     tr += '<option value="pourcent_p">Pourcentage d\'achèvement</option>';
      tr += '<option value="duree">Durée</option>';
+     tr += '<option value="sources">Liste des sources</option>';
+     tr += '<option value="apps">Liste des applications</option>';
      tr += '</select></td>';
      //tr += '<td><input class="cmdAttr form-control input-sm" data-l1key="logicalId" style="width : 140px;" placeholder="{{logicalId}}"></td>';
      //tr += '<td><textarea class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="calcul" style="height : 33px;" ' + disabled + ' placeholder="{{Calcul}}"></textarea>';
@@ -195,13 +199,23 @@ if (init(_cmd.type) == 'action') {
     tr += '<span class="subType" subType="' + init(_cmd.subType) + '"></span>';
     tr += '<input class="cmdAttr" data-l1key="configuration" data-l2key="sonybraviaAction" value="1" style="display:none;" >';
     tr += '</td>';
-    tr += '<td><select id="select_actions" style="width : 140px;" class="cmdAttr form-control input-sm" data-l1key="logicalId">';
+    tr += '<td><select style="width : 200px;" class="cmdAttr form-control input-sm" data-l1key="logicalId">';
     tr += '<option value="turn_on">Allumer</option>';
     tr += '<option value="turn_off">Eteindre</option>';
     tr += '<option value="volume_up">Vol haut</option>';
     tr += '<option value="volume_down">Vol bas</option>';
     tr += '<option value="mute_volume">Mute</option>';
+    tr += '<option value="select_source">Changer Source</option>';
     tr += '<option value="start_app">Démarrer une application</option>';
+    
+    tr += '<option value="play_content">Jouer un fichier</option>';
+    tr += '<option value="media_play">Lecture</option>';
+    tr += '<option value="media_pause">Pause</option>';
+    tr += '<option value="media_previous_track">Précédent</option>';
+    tr += '<option value="media_next_track">Suivant</option>';
+    tr += '<option value="start_app">Démarrer une application</option>';
+    
+    
     tr += '<option value="ircc">RAW</option>';
     tr += '</select></td>';
     tr += '<td>';
