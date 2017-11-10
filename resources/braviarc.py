@@ -13,6 +13,9 @@ import json
 import socket
 import struct
 import requests
+from datetime import datetime
+import time
+import sys
 
 TIMEOUT = 10
 
@@ -390,3 +393,38 @@ class BraviaRC:
     def media_previous_track(self):
         """Send the previous track command."""
         self.send_req_ircc(self.get_command_code('Prev'))
+
+    def calc_time(self, *times):
+        """Calculate the sum of times, value is returned in HH:MM."""
+        totalSecs = 0
+        for tm in times:
+            timeParts = [int(s) for s in tm.split(':')]
+            totalSecs += (timeParts[0] * 60 + timeParts[1]) * 60 + timeParts[2]
+        totalSecs, sec = divmod(totalSecs, 60)
+        hr, min = divmod(totalSecs, 60)
+        if hr >= 24: #set 24:10 to 00:10
+            hr -= 24
+        return ("%02d:%02d" % (hr, min))
+
+    def playing_time(self, startDateTime, durationSec):
+        """Give starttime, endtime and percentage played."""
+        #get starttime (2017-03-24T00:00:00+0100) and calculate endtime with duration (secs)
+        date_format = "%Y-%m-%dT%H:%M:%S"
+        try:
+            playingtime = datetime.now() - datetime.strptime(startDateTime[:-5], date_format)
+        except TypeError:
+            #https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior
+            #playingtime = datetime.now() - datetime.fromtimestamp(time.mktime(time.strptime(startDateTime[:-5], date_format)))
+            playingtime = datetime.now() - datetime(*(time.strptime(startDateTime[:-5], date_format)[0:6]))
+        try:
+            starttime = datetime.time(datetime.strptime(startDateTime[:-5], date_format))
+        except TypeError:
+            #starttime = datetime.time(datetime.fromtimestamp(time.mktime(time.strptime(startDateTime[:-5], date_format))))
+            starttime = datetime.time(datetime(*(time.strptime(startDateTime[:-5], date_format)[0:6])))
+        
+        duration = time.strftime('%H:%M:%S', time.gmtime(durationSec))
+        endtime = self.calc_time(str(starttime), str(duration))
+        starttime = starttime.strftime('%H:%M')
+        #print(playingtime.seconds, tvplaying['durationSec'])
+        perc_playingtime = int(round(((playingtime.seconds / durationSec) * 100),0))
+        return str(starttime), str(endtime), str(perc_playingtime)
