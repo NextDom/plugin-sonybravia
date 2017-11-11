@@ -1,5 +1,6 @@
 == Informations
 
+Exemple de commandes diponibles : 
 image:../images/command_info_list.png[]
 
 == Commandes régulières
