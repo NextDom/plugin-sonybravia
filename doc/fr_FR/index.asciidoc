@@ -2,9 +2,11 @@
 
 Plugin de communication avec les TV Sony Bravia pour la solution domotique Jeedom
 
+'''
+
 include::configuration.asciidoc[]
 
-'''
+include::commands.asciidoc[]
 
 include::compatibility.asciidoc[]
 

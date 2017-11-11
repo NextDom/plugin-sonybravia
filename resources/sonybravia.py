@@ -114,24 +114,24 @@ class SonyBravia:
 						Donnees["debut"] = ""
 						Donnees["debut_p"] = ''
 						Donnees["fin_p"] = ''
-						Donnees["pourcent_p"] = '0
+						Donnees["pourcent_p"] = '0'
 						Donnees["duree"] = ""
 						Donnees["chaine"] = ""
 					else:
 						Donnees["source"] = ((tvPlaying['source'])[-4:]).upper() + (tvPlaying['uri'])[-1:]
 						try:
 							if tvPlaying['dispNum'] is not None :
-								Donnees["chaine"] = tvPlaying['dispNum']
+								Donnees["chaine"] = tvPlaying['dispNum'].replace('\'','%27').replace(' ','%20').replace('é','%C3%A9')
 						except:
 							print('num chaine not found')
 						try:
 							if tvPlaying['programTitle'] is not None :
-								Donnees["program"] = tvPlaying['programTitle'].replace(' ','%20').replace('é','%C3%A9')
+								Donnees["program"] = tvPlaying['programTitle'].replace(' ','%20').replace('é','%C3%A9').replace('\'','%27')
 						except:
 							print('program info not found')
 						try:
 							if tvPlaying['title'] is not None :
-								Donnees["nom_chaine"] = tvPlaying['title'].replace(' ','%20')
+								Donnees["nom_chaine"] = tvPlaying['title'].replace(' ','%20').replace('\'','%27').replace('é','%C3%A9')
 						except:
 							print('nom chaine not found')
 						try:
