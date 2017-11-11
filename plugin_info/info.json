@@ -8,5 +8,6 @@
 	"category" : "multimedia",
 	"hasDependency" : true,
 	"hasOwnDeamon" : 1,
-	"maxDependancyInstallTime" : 45
+	"maxDependancyInstallTime" : 45,
+	"documentation" : "https://github.com/ticed35/jeedom-sony-bravia/blob/release/doc/fr_FR/index.asciidoc"
 }

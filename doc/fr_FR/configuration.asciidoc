@@ -40,3 +40,5 @@ Renseigner l'adresse ip et mac sur l'équipement, sauvegarder puis exécuter le 
 image:../images/association_button.png[]
 image:../images/sonybravia_screenshot2.png[]
 
+Suivre les indications ensuite. 
+
