@@ -1,3 +1,11 @@
+== Informations
+
+image:../images/command_info_list.png[]
+
+== Commandes régulières
+
+image:../images/command_list.png[]
+
 == Commandes RAW
 
 Il est possible d'envoyer des commandes non implémentées dans le plugin au moyen d'une commande RAW :

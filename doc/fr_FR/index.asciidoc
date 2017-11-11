@@ -6,6 +6,8 @@ include::configuration.asciidoc[]
 
 '''
 
+include::commands.asciidoc[]
+
 include::compatibility.asciidoc[]
 
 include::changelog.asciidoc[]
