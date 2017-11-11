@@ -114,7 +114,7 @@ class SonyBravia:
 						Donnees["debut"] = ""
 						Donnees["debut_p"] = ''
 						Donnees["fin_p"] = ''
-						Donnees["pourcent_p"] = '0
+						Donnees["pourcent_p"] = '0'
 						Donnees["duree"] = ""
 						Donnees["chaine"] = ""
 					else:
