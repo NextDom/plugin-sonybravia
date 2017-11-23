@@ -31,6 +31,7 @@ function sonybravia_update() {
 	message::add('sonybravia', 'Mise à jour en cours...', null, null);
 	if (jeedom::isCapable('sudo')) {
 		exec(system::getCmdSudo() . ' chmod a+x ' . dirname(__FILE__) . '/../resources/install_apt.sh ' .' 2>&1 &');
+		exec(system::getCmdSudo() . ' chmod a+x ' . dirname(__FILE__) . '/../resources/install_dependancy.sh ' .' 2>&1 &');
 	}
 	else{
 		message::add('sonybravia', 'Erreur : Veuillez donner les droits sudo à Jeedom', null, null);
