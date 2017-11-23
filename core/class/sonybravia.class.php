@@ -36,8 +36,14 @@ class sonybravia extends eqLogic {
 		if (file_exists(jeedom::getTmpFolder('sonybravia') . '/dependance')) {
 		    return;
 		}
+        self::dependancy_force();
 		log::remove(__CLASS__ . '_update');
 		return array('script' => dirname(__FILE__) . '/../../resources/install_#stype#.sh ' . jeedom::getTmpFolder('sonybravia') . '/dependance', 'log' => log::getPathToLog(__CLASS__ . '_update'));
+	}
+  
+    	public static function dependancy_force() {
+        	log::add('sonybravia', 'info', 'Dependancy manual install');
+		return array('script' => dirname(__FILE__) . '/../../resources/install_dependancy.sh ' . jeedom::getTmpFolder('sonybravia') . '/dependance', 'log' => log::getPathToLog(__CLASS__ . '_update'));
 	}
 	
 	public static function deamon_info() {
