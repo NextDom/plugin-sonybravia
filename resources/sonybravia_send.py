@@ -4,6 +4,7 @@
 import os
 from braviarc import BraviaRC
 from optparse import OptionParser
+from time import sleep
 import sys
 
 ### Enter the IP address, PSK and MAC address of the TV below
@@ -81,7 +82,10 @@ try:
 	if command_type == 'start_app':
 		_braviainstance.start_app(command_param)
 	if command_type == 'ircc':
-		_braviainstance.send_req_ircc(command_param)
+		cmdlist=command_param.split(";")
+		for cmdircc in cmdlist :
+			_braviainstance.send_req_ircc(cmdircc)
+			sleep(0.25)
 	sys.exit()
 except KeyError:
     print('TV not found')
