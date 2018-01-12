@@ -155,6 +155,21 @@ class SonyBravia:
 							print('duration not found')
 				except:
 					print('Playing Info not found')
+			else:
+				try:
+					Donnees["source"] = ""
+					Donnees["program"] = ""
+					Donnees["nom_chaine"] = ""
+					Donnees["debut"] = ""
+					Donnees["debut_p"] = ''
+					Donnees["fin_p"] = ''
+					Donnees["pourcent_p"] = '0'
+					Donnees["duree"] = ""
+					Donnees["chaine"] = ""
+					Donnees["volume"] = ""
+				except:
+					print('Cannot reset Playing Info')
+					
 			self.cmd = "curl -L -s -G --max-time 15 " + self._jeedomadress + " -d 'apikey=" + self._apikey + "&mac=" + self._macadress
 			for cle, valeur in Donnees.items():
 				if(cle in _Donnees):
