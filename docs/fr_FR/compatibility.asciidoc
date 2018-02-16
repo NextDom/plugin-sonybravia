@@ -1,0 +1,15 @@
+== Compatibilités testées : 
+
+* KDL-50W829B
+* KDL-42W705B
+* KDL-55W805C
+* KD-55X9005B
+* KDL-42W805A
+* KDL-60W605B
+* KD-49XD8305 Android
+* KD-55X8509C Android
+* KD-55SD8505 Android
+* KD-55XD8505 Android
+* KD-55XD8005 Android
+* KDL-50W755c Android
+* XBR-43X800D Android
