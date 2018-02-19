@@ -1,7 +1,7 @@
 # plugin-sony-bravia
 Plugin de communication avec les TV Sony Bravia pour la solution domotique Jeedom
 
-<img src="plugin_info/sony-bravia_icon.png" align="right" height="160" width="150">
+<img src="plugin_info/sonybravia_icon.png" align="right" height="160" width="150">
 
 ![sonybravia1](/docs/images/sonybravia_screenshot1.png)
 
