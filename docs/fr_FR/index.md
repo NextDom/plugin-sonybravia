@@ -1,37 +1,36 @@
-+ Présentation
+﻿# Présentation
 
 Plugin de communication avec les TV Sony Bravia pour la solution domotique Jeedom
 
 
-+ Configuration du plugin
+# Configuration du plugin
 
 Après téléchargement du plugin, il vous suffit juste d'activer celui-ci, il n'y a aucune configuration à ce niveau.
 
-++ Configuration des équipements
+## Configuration des équipements
 
 La configuration des équipements TV Sony est accessible à partir du menu plugin puis multimédia :
 
 Vous retrouvez ici toute la configuration de votre équipement :
 
-* *Nom de l'équipement Mode* : nom de votre équipement Mode,
-* *Objet parent* : indique l'objet parent auquel appartient l'équipement,
-* *Activer* : permet de rendre votre équipement actif,
-* *Visible* : rend votre équipement visible sur le dashboard,
-* *Catégorie* : les catégories de l'équipement (il peut appartenir à plusieurs catégories).
+* Nom de l'équipement Mode : nom de votre équipement Mode,
+* Objet parent : indique l'objet parent auquel appartient l'équipement,
+* Activer : permet de rendre votre équipement actif,
+* Visible : rend votre équipement visible sur le dashboard,
+* Catégorie : les catégories de l'équipement (il peut appartenir à plusieurs catégories).
+* Adresse IP : Adresse IP de la télévision
+* Adresse MAC : Adresse MAC de la télévision au format 00:00:00:00:00:00. Il est possible de la retrouver dans le menu info de la télévision, sur l'interface d'administration de votre routeur ou bien sur l'étiquette derrière le téléviseur.
+* Clé TV : Clé de sécurité renseignée sur la télévision ou bien code pin renseigné lors de la procédure d'association.
 
-* *Adresse IP* : Adresse IP de la télévision
-* *Adresse MAC* : Adresse MAC de la télévision au format 00:00:00:00:00:00. Il est possible de la retrouver dans le menu info de la télévision, sur l'interface d'administration de votre routeur ou bien sur l'étiquette derrière le téléviseur.
-* *Clé TV* : Clé de sécurité renseignée sur la télévision ou bien code pin renseigné lors de la procédure d'association.
 
-
-++ Association
+## Association
 
 Deux modes de communications peuvent êtres utilisés.
 
 * Usage d'une clé partagée (préféré)
 * Association à l'aide d'un PIN code
 
-+++ Clé partagée
+### Clé partagée
 
 ![sonybravia1](../images/config.png)
 
@@ -39,7 +38,7 @@ Deux modes de communications peuvent êtres utilisés.
 ** Activer l'accès par clé partagée : [Paramètres] => [Réseaux] => [Configuration Réseau domestique] => [Contrôle IP] => [Authentification] => [Normal et clé pré-partagée]
 ** Choisir la clé et la renseigner ci-dessus : [Paramètres] => [Réseaux] => [Configuration Réseau domestique] => [Contrôle IP] => [Clé pré-partagée] => sony
 
-+++ Pin code
+### Pin code
 
 Renseigner l'adresse ip et mac sur l'équipement, sauvegarder puis exécuter le processus d'association :
 
@@ -49,23 +48,23 @@ Renseigner l'adresse ip et mac sur l'équipement, sauvegarder puis exécuter le 
 
 Suivre les indications ensuite.
 
-+ Commandes
+# Commandes
 
 Exemple de commandes diponibles :
 
 ![sonybravia4](../images/command_info_list.png)
 
-++ Commandes régulières
+## Commandes régulières
 
 ![sonybravi54](../images/command_list.png)
 
-++ Commandes RAW
+## Commandes RAW
 
 Il est possible d'envoyer des commandes non implémentées dans le plugin au moyen d'une commande RAW :
 
 ![sonybravi54](../images/raw_command.png)
 
-++ Liste non exhaustive
+## Liste non exhaustive
 
 |Nom|Code|
 |---|----|
@@ -188,7 +187,7 @@ Il est possible d'envoyer des commandes non implémentées dans le plugin au moy
 |	AndroidMenu	|	AAAAAgAAAMQAAABPAw== |
 
 
-+ Compatibilités testées :
+# Compatibilités testées :
 
 * KDL-50W829B
 * KDL-42W705B
@@ -205,7 +204,7 @@ Il est possible d'envoyer des commandes non implémentées dans le plugin au moy
 * XBR-43X800D Android
 
 
-+ Bug
+# Bug
 
 En cas de bug avéré du plugin il est possible d'ouvrir une issue :
 

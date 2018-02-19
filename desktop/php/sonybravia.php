@@ -117,9 +117,9 @@ foreach (jeedom::getConfiguration('eqLogic:category') as $key => $value) {
 				<div class="col-sm-2">
 					<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="psk"/>
 				</div>
-                                
+
 			</div>
-			
+
 			<div class="form-group">
 				<label class="col-sm-2 control-label">{{Configuration}}</label>
 				<div class="col-sm-8"><br/>
@@ -128,11 +128,11 @@ foreach (jeedom::getConfiguration('eqLogic:category') as $key => $value) {
 				3 - Choisir la clé et la renseigner ci-dessus : [Paramètres] => [Réseaux] => [Configuration Réseau domestique] => [Contrôle IP] => [Clé pré-partagée] => sony<br/>
 				<br/>
 				Renseigner les informations sur l'équipement puis sauvegarder.<br/>
-                                
+
                                 <a class="btn btn-default eqLogicAction" onclick="window.open('plugins/sonybravia/doc/images/config.png')"><i class="fa fa-question-circle"></i>{{ Plus d'infos}}</a>
 				</div>
 			</div>
-                
+
                         <div class="form-group">
                             <label class="col-sm-2 control-label"></label>
                             <div style="margin-top:10px" class="col-sm-3">
@@ -143,7 +143,7 @@ foreach (jeedom::getConfiguration('eqLogic:category') as $key => $value) {
                                 </div>
                             </div>
                         </div>
-			
+
 			<div class="form-group">
 				<label class="col-sm-2 control-label"></label>
 				<!--<div class="col-sm-1">
@@ -218,24 +218,24 @@ foreach (jeedom::getConfiguration('eqLogic:category') as $key => $value) {
                                                 }
                                             });
                                         });
-                    
-                    
-                    
-						
+
+
+
+
 					</script>
 				</div>
                                 <div class="col-sm-1">
-                                
+
                                 </div>
 			</div>
-			
+
     </fieldset>
 </form>
 
 </div>
 <div role="tabpanel" class="tab-pane" id="commandtab">
-    <a class="btn btn-default btn-sm pull-right" id="bt_addsonybraviaInfo" style="margin-top:5px;"><i class="fa fa-plus-circle"></i> {{Ajouter une info}}</a>
-    <a class="btn btn-default btn-sm  pull-right" id="bt_addsonybraviaAction" style="margin-top:5px;"><i class="fa fa-plus-circle"></i> {{Ajouter une commande}}</a><br/><br/>
+    <a class="btn btn-success btn-sm cmdAction pull-left" id="bt_addsonybraviaInfo" style="margin-top:5px;"><i class="fa fa-plus-circle"></i> {{Ajouter une info}}</a>
+    <a class="btn btn-success btn-sm cmdAction pull-left" id="bt_addsonybraviaAction" style="margin-top:5px;"><i class="fa fa-plus-circle"></i> {{Ajouter une commande}}</a><br/><br/>
     <table id="table_cmd" class="table table-bordered table-condensed">
         <thead>
             <tr>
