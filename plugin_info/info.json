@@ -9,5 +9,6 @@
 	"hasDependency" : true,
 	"hasOwnDeamon" : 1,
 	"maxDependancyInstallTime" : 45,
-	"documentation" : "https://github.com/ticed35/jeedom-sonybravia/blob/release/doc/fr_FR/index.asciidoc"
+	"changelog" : "https://Jeedom-Plugins-Extra.github.io/plugin-sonybravia/#language#/",
+	"documentation" : "https://Jeedom-Plugins-Extra.github.io/plugin-sonybravia/#language#/"
 }
