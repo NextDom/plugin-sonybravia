@@ -36,4 +36,4 @@ foreach ($_GET as $key => $value) {
 	}
 }
 log::add('sonybravia', 'debug', 'Reception de : ' . $array_recu);
-?>
+ 
