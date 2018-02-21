@@ -9,5 +9,5 @@
 	"hasDependency" : true,
 	"hasOwnDeamon" : 1,
 	"maxDependancyInstallTime" : 45,
-	"documentation" : "https://github.com/ticed35/jeedom-sony-bravia/blob/release/doc/fr_FR/index.asciidoc"
+	"documentation" : "https://github.com/ticed35/jeedom-sonybravia/blob/release/doc/fr_FR/index.asciidoc"
 }
