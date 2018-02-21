@@ -111,7 +111,7 @@ class sonybravia extends eqLogic {
 			throw new Exception(__('Veuillez vérifier la configuration', __FILE__));
 		}
 		$sonybravia_path = realpath(dirname(__FILE__) . '/../../resources');
-                if ($_cookie == true){
+                if ($_cookie === true){
                     $cmd = 'sudo /usr/bin/python3 ' . $sonybravia_path . '/sonybravia_cookie.py';
                     $cmd .= ' --tvip ' . $_ip;
                     $cmd .= ' --mac ' . $_mac;
@@ -365,5 +365,4 @@ class sonybraviaCmd extends cmd {
 
 	/*     * **********************Getteur Setteur*************************** */
 }
-
-?>
+ 
