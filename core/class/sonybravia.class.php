@@ -133,7 +133,7 @@ class sonybravia extends eqLogic {
 			self::deamon_stop();
 		}
 		if ($deamon_info['launchable'] != 'ok') {
-			throw new Exception(__('Veuillez vérifier la configuration', __FILE__));
+			throw new \Exception(__('Veuillez vérifier la configuration', __FILE__));
 		}
 		$sonybravia_path = realpath(dirname(__FILE__) . '/../../resources');
                 if ($_cookie == true){
@@ -180,7 +180,7 @@ class sonybravia extends eqLogic {
 	public static function event() {
 		$cmd = sonybraviaCmd::byId(init('id'));
 		if (!is_object($cmd) || $cmd->getEqType() != 'sonybravia') {
-			throw new Exception(__('Commande ID virtuel inconnu, ou la commande n\'est pas de type virtuel : ', __FILE__) . init('id'));
+			throw new \Exception(__('Commande ID virtuel inconnu, ou la commande n\'est pas de type virtuel : ', __FILE__) . init('id'));
 		}
 		$cmd->event(init('value'));
 	}
@@ -253,30 +253,30 @@ class sonybravia extends eqLogic {
 			if ($cmd_name == __('Rafraichir')) {
 				$cmd_name .= '_1';
 			}
-			$cmd = new sonybraviaCmd();
-			$cmd->setName($cmd_name);
-			$cmd->setEqLogic_id($this->getId());
-			$cmd->setIsVisible($cmd_def->getIsVisible());
-			$cmd->setType($cmd_def->getType());
-			$cmd->setUnite($cmd_def->getUnite());
-			$cmd->setOrder($cmd_def->getOrder());
-			$cmd->setDisplay('icon', $cmd_def->getDisplay('icon'));
-			$cmd->setDisplay('invertBinary', $cmd_def->getDisplay('invertBinary'));
-			$cmd->setConfiguration('listValue', $cmd_def->getConfiguration('listValue',''));
+			$cmd = (new sonybraviaCmd())
+				->setName($cmd_name)
+				->setEqLogic_id($this->getId())
+				->setIsVisible($cmd_def->getIsVisible())
+				->setType($cmd_def->getType())
+				->setUnite($cmd_def->getUnite())
+				->setOrder($cmd_def->getOrder())
+				->setDisplay('icon', $cmd_def->getDisplay('icon'))
+				->setDisplay('invertBinary', $cmd_def->getDisplay('invertBinary'))
+				->setConfiguration('listValue', $cmd_def->getConfiguration('listValue',''));
 			foreach ($cmd_def->getTemplate() as $key => $value) {
 				$cmd->setTemplate($key, $value);
 			}
 			$cmd->setSubType($cmd_def->getSubType());
 			if ($cmd->getType() == 'info') {
-				$cmd->setConfiguration('calcul', '#' . $cmd_def->getId() . '#');
-				$cmd->setValue($cmd_def->getId());
+				$cmd->setConfiguration('calcul', '#' . $cmd_def->getId() . '#')
+				    ->setValue($cmd_def->getId());
 			} else {
-				$cmd->setValue($cmd_def->getValue());
-				$cmd->setConfiguration('infoName', '#' . $cmd_def->getId() . '#');
+				$cmd->setValue($cmd_def->getValue())
+				    ->setConfiguration('infoName', '#' . $cmd_def->getId() . '#');
 			}
 			try {
 				$cmd->save();
-			} catch (Exception $e) {
+			} catch (\Exception $e) {
 
 			}
 		}
@@ -337,7 +337,7 @@ class sonybraviaCmd extends cmd {
 							}
 						}
 						return $result;
-					} catch (Exception $e) {
+					} catch (\Exception $e) {
 						log::add('sonybravia', 'info', $e->getMessage());
 						return jeedom::evaluateExpression($this->getConfiguration('calcul'));
 					}
@@ -356,7 +356,7 @@ class sonybraviaCmd extends cmd {
                                         $cmd .= " --commandparam '" . $this->getConfiguration('param') . "'";
                                     }
                                     $result = exec($cmd . ' >> ' . log::getPathToLog('sonybravia') . ' 2>&1 &');
-                                } catch (Exception $e) {
+                                } catch (\Exception $e) {
                                     log::add('sonybravia', 'info', $e->getMessage());
 				}
 				break;
