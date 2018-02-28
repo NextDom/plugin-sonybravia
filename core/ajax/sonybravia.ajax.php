@@ -18,7 +18,7 @@ try {
 	require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 	include_file('core', 'authentification', 'php');
 	if (!isConnect('admin')) {
-		throw new Exception('401 Unauthorized');
+		throw new \Exception('401 Unauthorized');
 	}
 	ajax::init();
 
@@ -43,9 +43,8 @@ try {
 		ajax::success($return['result'] = $resultat);
 	}
 	
-	throw new Exception('Aucune methode correspondante');
+	throw new \Exception('Aucune methode correspondante');
 	/*     * *********Catch exeption*************** */
-} catch (Exception $e) {
+} catch (\Exception $e) {
 	ajax::error(displayExeption($e), $e->getCode());
 }
-?>
