@@ -108,7 +108,7 @@ class sonybravia extends eqLogic {
 			self::deamon_stop();
 		}
 		if ($deamon_info['launchable'] != 'ok') {
-			throw new Exception(__('Veuillez vérifier la configuration', __FILE__));
+			throw new \Exception(__('Veuillez vérifier la configuration', __FILE__));
 		}
 		$sonybravia_path = realpath(dirname(__FILE__) . '/../../resources');
                 if ($_cookie === true){
@@ -173,9 +173,6 @@ class sonybravia extends eqLogic {
 		}	
 		return true;
 	}
-	/*     * *************************Attributs****************************** */
-
-	/*     * ***********************Methode static*************************** */
 
 	public static function event() {
 		$cmd = sonybraviaCmd::byId(init('id'));
@@ -223,7 +220,7 @@ class sonybravia extends eqLogic {
 		}
 	}*/
 
-	public function postSave() {
+/*	public function postSave() {
 		/*$refresh = $this->getCmd(null, 'refresh');
 		if (!is_object($refresh)) {
 			$refresh = new sonybraviaCmd();
@@ -235,7 +232,7 @@ class sonybravia extends eqLogic {
 		$refresh->setSubType('other');
 		$refresh->setEqLogic_id($this->getId());
 		$refresh->save();*/
-	}
+	}*/
 
 	public function copyFromEqLogic($_eqLogic_id) {
 		$eqLogic = eqLogic::byId($_eqLogic_id);
@@ -282,16 +279,10 @@ class sonybravia extends eqLogic {
 		}
 		$this->save();
 	}
-
-	/*     * **********************Getteur Setteur*************************** */
 }
 
 class sonybraviaCmd extends cmd {
-	/*     * *************************Attributs****************************** */
-
-	/*     * ***********************Methode static*************************** */
-
-	/*     * *********************Methode d'instance************************* */
+ 
 
 	public function dontRemoveCmd() {
 		if ($this->getLogicalId() == 'refresh') {
@@ -363,6 +354,5 @@ class sonybraviaCmd extends cmd {
 		}
 	}
 
-	/*     * **********************Getteur Setteur*************************** */
 }
  
