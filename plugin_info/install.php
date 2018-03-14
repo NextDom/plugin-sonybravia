@@ -28,6 +28,27 @@ function sonybravia_install() {
 }
 
 function sonybravia_update() {
+    $coreVersion = '1.0.0';
+    if (!file_exists(dirname(__FILE__) . '/info.json')) {
+        log::add('sonybravia','warning','Pas de fichier info.json');
+        goto step2;
+    }
+    $data = json_decode(file_get_contents(dirname(__FILE__) . '/info.json'), true);
+    if (!is_array($data)) {
+        log::add('sonybravia','warning','Impossible de décoder le fichier info.json');
+        goto step2;
+    }
+    try {
+        $coreVersion = $data['pluginVersion'];
+    } catch (\Exception $e) {
+        log::add('sonybravia','warning','Pas de version de plugin');
+    }
+    step2:
+    log::add('sonybravia','info','*******************************************************');
+    log::add('sonybravia','info','*********** Mise à jour du plugin sonybravia **********');
+    log::add('sonybravia','info','*******************************************************');
+    log::add('sonybravia','info','**        Core version    : '. $coreVersion. '                    **');
+    log::add('sonybravia','info','*******************************************************');
 	message::add('sonybravia', 'Mise à jour en cours...', null, null);
 	if (jeedom::isCapable('sudo')) {
 		exec(system::getCmdSudo() . ' chmod a+x ' . dirname(__FILE__) . '/../resources/install_apt.sh ' .' 2>&1 &');
@@ -36,16 +57,12 @@ function sonybravia_update() {
 	else{
 		message::add('sonybravia', 'Erreur : Veuillez donner les droits sudo à Jeedom', null, null);
 	}
-	message::removeAll('sonybravia');		
-	message::add('sonybravia', 'Mise à jour terminée', null, null);
+	message::removeAll('sonybravia');
+    message::add('sonybravia', 'Mise à jour terminée, vous êtes en version ' . $coreVersion . '.', null, null);
 }
 
 function sonybravia_remove() {
 
-	/*$cron = cron::byClassAndFunction('sony-bravia', 'CalculateOtherStats');
-    if (is_object($cron)) {
-        $cron->remove();
-    }*/
 }
 
 ?>

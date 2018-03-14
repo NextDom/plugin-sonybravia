@@ -10,5 +10,6 @@
 	"hasOwnDeamon" : 1,
 	"maxDependancyInstallTime" : 45,
 	"changelog" : "https://Jeedom-Plugins-Extra.github.io/plugin-sonybravia/#language#/",
-	"documentation" : "https://Jeedom-Plugins-Extra.github.io/plugin-sonybravia/#language#/"
+	"documentation" : "https://Jeedom-Plugins-Extra.github.io/plugin-sonybravia/#language#/",
+	"pluginVersion" : "1.1.0"
 }
