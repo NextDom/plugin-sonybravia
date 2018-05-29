@@ -16,24 +16,24 @@
  * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
  */
 header('Content-type: application/json');
-require_once dirname(__FILE__) . "/../../../../core/php/core.inc.php";
+require_once __DIR__ . "/../../../../core/php/core.inc.php";
 
 if (!jeedom::apiAccess(init('apikey'), 'sonybravia')) {
- echo __('Clef API non valide, vous n\'êtes pas autorisé à effectuer cette action (sonybravia)', __FILE__);
- die();
+    echo __('Clef API non valide, vous n\'êtes pas autorisé à effectuer cette action (sonybravia)', __FILE__);
+    die();
 }
 
 $eqlogic = sonybravia::byLogicalId(init('mac'), 'sonybravia');
 if (!is_object($eqlogic)) {
-	die();
+    die();
 }
 $array_recu = "";
 foreach ($_GET as $key => $value) {
-	$array_recu = $array_recu . $key . '=' . $value . ' / ';
-	$cmd = $eqlogic->getCmd('info',$key);
-	if (is_object($cmd)) {
-		$cmd->event($value);
-	}
+    $array_recu = $array_recu . $key . '=' . $value . ' / ';
+    $cmd        = $eqlogic->getCmd('info', $key);
+    if (is_object($cmd)) {
+        $cmd->event($value);
+    }
 }
 log::add('sonybravia', 'debug', 'Reception de : ' . $array_recu);
- 
+
