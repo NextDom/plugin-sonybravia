@@ -49,7 +49,7 @@ if options.command_param:
 	except:
 		print('Erreur de parametres')
 
-_braviainstance = BraviaRC(ip, mac)
+_braviainstance = BraviaRC(ip, None, mac)
 _braviainstance.connect(psk, 'Jeedom', 'Jeedom')
 
 try:

@@ -2,7 +2,7 @@
 #
 #
 import os
-from bravia import BraviaRC
+from braviarc import BraviaRC
 import sys
 import time
 import threading

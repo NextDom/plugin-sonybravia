@@ -29,7 +29,7 @@ class SonyBravia:
 		self._psk = psk
 		self._apikey = apikey
 		self._jeedomadress = jeedomadress
-		self._braviainstance = BraviaRC(self._ipadress, self._macadress)
+		self._braviainstance = BraviaRC(self._ipadress, None, self._macadress)
 		if self._braviainstance.connect(psk, 'Jeedom', 'Jeedom') == False:
 			print ("Récupération du pin")
 			sys.exit()
