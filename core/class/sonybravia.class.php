@@ -74,7 +74,7 @@ class sonybravia extends eqLogic
                 $retour = false;
             }
             if ($eqLogic->getConfiguration('psk') == "1234") {
-                $return['launchable'] = 'nok';
+                //$return['launchable'] = 'nok';
             }
         }
         if ($retour) {
@@ -149,11 +149,11 @@ class sonybravia extends eqLogic
         if ($deamon_info['state'] == 'ok') {
             self::deamon_stop();
         }
-        if ($deamon_info['launchable'] != 'ok') {
+        /*if ($deamon_info['launchable'] != 'ok') {
             throw new \Exception(__('Veuillez vérifier la configuration', __FILE__));
-        }
+        }*/
         $sonybravia_path = realpath(dirname(__FILE__) . '/../../resources');
-        if ($_cookie === true) {
+        if ($_cookie === 'true') {
             $cmd    = 'sudo /usr/bin/python3 ' . $sonybravia_path . '/sonybravia_cookie.py';
             $cmd    .= ' --tvip ' . $_ip;
             $cmd    .= ' --mac ' . $_mac;
@@ -188,7 +188,7 @@ class sonybravia extends eqLogic
             throw new \Exception(__('Veuillez vérifier la configuration', __FILE__));
         }
         $sonybravia_path = realpath(__DIR__ . '/../../resources');
-        if ($cookie === true) {
+        if ($cookie === 'true') {
             $cmd = 'sudo /usr/bin/python3 ' . $sonybravia_path . '/sonybravia_cookie.py';
         } else {
             $cmd = 'sudo /usr/bin/python3 ' . $sonybravia_path . '/sonybravia.py';
