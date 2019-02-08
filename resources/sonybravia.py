@@ -65,16 +65,16 @@ class SonyBravia:
 		try:
 			Sources = self._braviainstance.load_source_list()
 			Apps = self._braviainstance.load_app_list()
+			_tmp = ""
 			for cle, valeur in Sources.items():
 				_tmp += cle.replace(' ' , '%20')
 				_tmp += "|"
-			#print (_tmp)
 			Donnees["sources"] = _tmp
 			_tmp = ""
 			for cle, valeur in Apps.items():
 				_tmp += cle.replace(' ' , '%20') + "|"
-			_tmp = _tmp.replace('&', '%26')
-			_tmp = _tmp.replace('\'', '%27')
+				_tmp = _tmp.replace('&', '%26')
+				_tmp = _tmp.replace('\'', '%27')
 			Donnees["apps"] = _tmp
 		except Exception:
 					errorCom = "Connection error"
@@ -138,7 +138,8 @@ class SonyBravia:
 							if tvPlaying['startDateTime'] is not None :
 								if tvPlaying['startDateTime'] != '':
 									Donnees["debut"] = tvPlaying['startDateTime']
-									Donnees["debut_p"], Donnees["fin_p"], Donnees["pourcent_p"] = self._braviainstance.playing_time(tvPlaying['startDateTime'],tvPlaying['durationSec'])
+									_tmp = self._braviainstance.playing_time(tvPlaying['startDateTime'],tvPlaying['durationSec'])
+									Donnees["debut_p"], Donnees["pourcent_p"],Donnees["fin_p"] = _tmp['start_time'], str(_tmp['media_position_perc']), _tmp['end_time']
 								else:
 									Donnees["debut_p"] = ''
 									Donnees["fin_p"] = ''
