@@ -40,6 +40,7 @@ class SonyBravia:
 		Sources = {}
 		Apps = {}
 		_RAZ = datetime.now()
+		_RAZ2 = datetime.now()
 		_RazCalcul = 0
 		_Separateur = "&"
 		_tmp = ""
@@ -61,26 +62,9 @@ class SonyBravia:
 			else:
 				print ("Thread not alive")
 		tvstatus = ""
-		try:
-			Sources = self._braviainstance.load_source_list()
-			Apps = self._braviainstance.load_app_list()
-			_tmp = ""
-			for cle, valeur in Sources.items():
-				_tmp += cle.replace(' ' , '%20')
-				_tmp += "|"
-			#print (_tmp)
-			Donnees["sources"] = _tmp
-			_tmp = ""
-			for cle, valeur in Apps.items():
-				_tmp += cle.replace(' ' , '%20') + "|"
-			#print (_tmp)
-			_tmp = _tmp.replace('&', '%26')
-			_tmp = _tmp.replace('\'', '%27')
-			Donnees["apps"] = _tmp
-		except Exception:
-					errorCom = "Connection error"
 		while(1):
 			_RazCalcul = datetime.now() - _RAZ
+			_RazCalcul2 = datetime.now() - _RAZ2
 			if(_RazCalcul.seconds > 8):
 				_RAZ = datetime.now()
 				del Donnees
@@ -88,6 +72,24 @@ class SonyBravia:
 				Donnees = {}
 				_Donnees = {}
 			_SendData = ""
+			if(_RazCalcul2.seconds > 60):
+				_RAZ2 = datetime.now()
+				try:
+					Sources = self._braviainstance.load_source_list()
+					Apps = self._braviainstance.load_app_list()
+					_tmp = ""
+					for cle, valeur in Sources.items():
+						_tmp += cle.replace(' ' , '%20')
+						_tmp += "|"
+					Donnees["sources"] = _tmp
+					_tmp = ""
+					for cle, valeur in Apps.items():
+						_tmp += cle.replace('\'' , '%27') + "|"
+					_tmp = _tmp.replace('&', '%26')
+					_tmp = _tmp.replace(' ', '%20')
+					Donnees["apps"] = _tmp
+				except Exception:
+							errorCom = "Connection error"
 			try:
 				tvstatus = self._braviainstance.get_power_status()
 				Donnees["status"] = tvstatus
