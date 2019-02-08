@@ -64,6 +64,7 @@ class SonyBravia:
 		try:
 			Sources = self._braviainstance.load_source_list()
 			Apps = self._braviainstance.load_app_list()
+			_tmp = ""
 			for cle, valeur in Sources.items():
 				_tmp += cle.replace(' ' , '%20')
 				_tmp += "|"
@@ -138,7 +139,8 @@ class SonyBravia:
 							if tvPlaying['startDateTime'] is not None :
 								if tvPlaying['startDateTime'] != '':
 									Donnees["debut"] = tvPlaying['startDateTime']
-									Donnees["debut_p"], Donnees["fin_p"], Donnees["pourcent_p"] = self._braviainstance.playing_time(tvPlaying['startDateTime'],tvPlaying['durationSec'])
+									_tmp = self._braviainstance.playing_time(tvPlaying['startDateTime'],tvPlaying['durationSec'])
+									Donnees["debut_p"], Donnees["pourcent_p"],Donnees["fin_p"] = _tmp['start_time'], str(_tmp['media_position_perc']), _tmp['end_time']
 								else:
 									Donnees["debut_p"] = ''
 									Donnees["fin_p"] = ''
