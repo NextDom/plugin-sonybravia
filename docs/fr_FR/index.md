@@ -195,6 +195,7 @@ Compatibilités testées :
 * KD-55X9005B
 * KDL-42W805A
 * KDL-60W605B
+* KDL-42W650A
 * KD-49XD8305 Android
 * KD-55X8509C Android
 * KD-55SD8505 Android
