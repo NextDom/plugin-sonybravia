@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
  */
-            
+
 require_once __DIR__ . '/../../../../core/php/core.inc.php';
 
 class sonybravia extends eqLogic
@@ -35,7 +35,7 @@ class sonybravia extends eqLogic
     }
 
     /**
-     * 
+     *
      * @return type
      */
     public static function dependancy_install()
@@ -49,7 +49,7 @@ class sonybravia extends eqLogic
     }
 
     /**
-     * 
+     *
      * @return array
      */
     public static function dependancy_force()
@@ -59,7 +59,7 @@ class sonybravia extends eqLogic
     }
 
     /**
-     * 
+     *
      * @return string
      */
     public static function deamon_info()
@@ -86,9 +86,9 @@ class sonybravia extends eqLogic
         }
         return $return;
     }
-    
+
     /**
-     * 
+     *
      */
     public static function deamon_stop()
     {
@@ -99,7 +99,7 @@ class sonybravia extends eqLogic
     }
 
     /**
-     * 
+     *
      * @param type $mac
      */
     public static function tv_deamon_stop($mac)
@@ -115,7 +115,7 @@ class sonybravia extends eqLogic
     }
 
     /**
-     * 
+     *
      * @param type $mac
      * @return boolean
      */
@@ -135,7 +135,7 @@ class sonybravia extends eqLogic
     }
 
     /**
-     * 
+     *
      * @param type $_ip
      * @param type $_mac
      * @param type $_psk
@@ -154,14 +154,28 @@ class sonybravia extends eqLogic
         }*/
         $sonybravia_path = realpath(dirname(__FILE__) . '/../../resources');
         if ($_cookie === 'true') {
-            $cmd    = 'sudo /usr/bin/python3 ' . $sonybravia_path . '/sonybravia_cookie.py';
+            // $cmd    = '/usr/bin/python3 ' . $sonybravia_path . '/sonybravia_cookie.py';
+            // $cmd    .= ' --tvip ' . $_ip;
+            // $cmd    .= ' --mac ' . $_mac;
+            // $cmd    .= ' --psk ' . $_psk;
+            // $cmd    .= ' --callback ' . network::getNetworkAccess('internal', 'proto:127.0.0.1:port:comp') . '/plugins/sonybravia/core/php/jeesonybravia.php';
+            // $cmd    .= ' --apikey ' . jeedom::getApiKey('sonybravia');
+            // log::add('sonybravia', 'info', 'Récupération du pin : ' . $cmd);
+            // $result = exec($cmd . ' >> ' . log::getPathToLog('sonybravia_local') . ' 2>&1 &');
+
+            $cmd = '/usr/bin/python3 ' . $sonybravia_path . '/sonybravia.py';
             $cmd    .= ' --tvip ' . $_ip;
             $cmd    .= ' --mac ' . $_mac;
             $cmd    .= ' --psk ' . $_psk;
-            $cmd    .= ' --jeedomadress ' . network::getNetworkAccess('internal', 'proto:127.0.0.1:port:comp') . '/plugins/sonybravia/core/php/jeesonybravia.php';
+            $cmd    .= ' --socketport ' . config::byKey('socketport', 'sonybravia', '55052');
+            $cmd    .= ' --cycle ' . config::byKey('cycle', 'sonybravia','0.3');
+            $cmd    .= ' --callback ' . network::getNetworkAccess('internal', 'proto:127.0.0.1:port:comp') . '/plugins/sonybravia/core/php/jeesonybravia.php';
             $cmd    .= ' --apikey ' . jeedom::getApiKey('sonybravia');
+            $cmd    .= ' --cookie ' . $_cookie;
+            $cmd    .= ' --loglevel ' . log::convertLogLevel(log::getLogLevel('sonybravia'));
             log::add('sonybravia', 'info', 'Récupération du pin : ' . $cmd);
-            $result = exec($cmd . ' >> ' . log::getPathToLog('sonybravia') . ' 2>&1 &');
+            $result = exec($cmd . ' >> ' . log::getPathToLog('sonybravia_local') . ' 2>&1 &'); //variable inutilisé
+
             message::removeAll('sonybravia', 'unableStartDeamon');
             return true;
         }
@@ -170,7 +184,7 @@ class sonybravia extends eqLogic
     }
 
     /**
-     * 
+     *
      * @param type $ip
      * @param type $mac
      * @param type $psk
@@ -188,18 +202,19 @@ class sonybravia extends eqLogic
             throw new \Exception(__('Veuillez vérifier la configuration', __FILE__));
         }
         $sonybravia_path = realpath(__DIR__ . '/../../resources');
-        if ($cookie === 'true') {
-            $cmd = 'sudo /usr/bin/python3 ' . $sonybravia_path . '/sonybravia_cookie.py';
-        } else {
-            $cmd = 'sudo /usr/bin/python3 ' . $sonybravia_path . '/sonybravia.py';
-        }
+
+        $cmd = '/usr/bin/python3 ' . $sonybravia_path . '/sonybravia.py';
         $cmd    .= ' --tvip ' . $ip;
         $cmd    .= ' --mac ' . $mac;
         $cmd    .= ' --psk ' . $psk;
-        $cmd    .= ' --jeedomadress ' . network::getNetworkAccess('internal', 'proto:127.0.0.1:port:comp') . '/plugins/sonybravia/core/php/jeesonybravia.php';
+        $cmd    .= ' --socketport ' . config::byKey('socketport', 'sonybravia', '55052');
+        $cmd    .= ' --cycle ' . config::byKey('cycle', 'sonybravia','0.3');
+        $cmd    .= ' --callback ' . network::getNetworkAccess('internal', 'proto:127.0.0.1:port:comp') . '/plugins/sonybravia/core/php/jeesonybravia.php';
         $cmd    .= ' --apikey ' . jeedom::getApiKey('sonybravia');
+        $cmd    .= ' --cookie ' . $cookie;
+        $cmd    .= ' --loglevel ' . log::convertLogLevel(log::getLogLevel('sonybravia'));
         log::add('sonybravia', 'info', 'Lancement démon sonybravia : ' . $cmd);
-        $result = exec($cmd . ' >> ' . log::getPathToLog('sonybravia') . ' 2>&1 &'); //variable inutilisé
+        $result = exec($cmd . ' >> ' . log::getPathToLog('sonybravia_local') . ' 2>&1 &'); //variable inutilisé
         $i      = 0;
         while ($i < 30) {
             $deamon_info = self::deamon_info();
@@ -218,7 +233,7 @@ class sonybravia extends eqLogic
     }
 
     /**
-     * 
+     *
      * @return boolean
      */
     public static function deamon_start()
@@ -231,7 +246,7 @@ class sonybravia extends eqLogic
     }
 
     /**
-     * 
+     *
      * @throws \Exception
      */
     public static function event()
@@ -243,8 +258,14 @@ class sonybravia extends eqLogic
         $cmd->event(init('value'));
     }
 
+    public static function changeLogLive($_level) {
+		$value = array('apikey' => jeedom::getApiKey('sonybravia'), 'cmd' => $_level);
+		$value = json_encode($value);
+		self::socket_connection($value,True);
+	}
+
     /**
-     * 
+     *
      * @return string
      */
     public static function deadCmd()
@@ -270,7 +291,7 @@ class sonybravia extends eqLogic
     }
 
     /**
-     * 
+     *
      * @param type $eqLogicId
      * @throws \Exception
      */
@@ -315,22 +336,35 @@ class sonybravia extends eqLogic
             try {
                 $cmd->save();
             } catch (\Exception $e) {
-                
+
             }
         }
         $this->save();
     }
 
+    public static function socket_connection($_value)
+    {
+        try {
+            $socket = socket_create(AF_INET, SOCK_STREAM, 0);
+            socket_connect($socket, '127.0.0.1', '55052');
+            socket_write($socket, $_value, strlen($_value));
+            socket_close($socket);
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
 }
 
 /**
- * 
+ *
  */
 class sonybraviaCmd extends cmd
 {
 
     /**
-     * 
+     *
      * @return boolean
      */
     public function dontRemoveCmd()
@@ -342,7 +376,7 @@ class sonybraviaCmd extends cmd
     }
 
     /**
-     * 
+     *
      */
     public function preSave()
     {
@@ -355,7 +389,7 @@ class sonybraviaCmd extends cmd
     }
 
     /**
-     * 
+     *
      */
     public function postSave()
     {
@@ -365,7 +399,7 @@ class sonybraviaCmd extends cmd
     }
 
     /**
-     * 
+     *
      * @param type $options
      * @return type
      */
@@ -398,16 +432,18 @@ class sonybraviaCmd extends cmd
             case 'action':
                 try {
                     $sonybravia      = $this->getEqLogic();
-                    $sonybravia_path = realpath(__DIR__ . '/../../resources');
-                    $cmd             = 'sudo /usr/bin/python3 ' . $sonybravia_path . '/sonybravia_send.py';
-                    $cmd             .= ' --tvip ' . $sonybravia->getConfiguration('ipadress');
-                    $cmd             .= ' --mac ' . $sonybravia->getLogicalId();
-                    $cmd             .= ' --psk ' . $sonybravia->getConfiguration('psk');
-                    $cmd             .= ' --command ' . $this->getLogicalId();
-                    if ($this->getConfiguration('param') !== "") {
-                        $cmd .= " --commandparam '" . $this->getConfiguration('param') . "'";
-                    }
-                    $result = exec($cmd . ' >> ' . log::getPathToLog('sonybravia') . ' 2>&1 &');
+                    $fulldata = array(
+                        'apikey' => jeedom::getApiKey('sonybravia'),
+                        'cmd' => 'action',
+                        'device' => $sonybravia->getLogicalId(),
+                        'command' => $this->getLogicalId(),
+                        'commandparam' => $this->getConfiguration('param')
+                    );
+		            log::add('sonybravia','debug',"Envoi de la commande " . $this->getLogicalId() . " depuis Jeedom");
+		            sonybravia::socket_connection( json_encode($fulldata) );
+
+
+
                 } catch (\Exception $e) {
                     log::add('sonybravia', 'info', $e->getMessage());
                 }

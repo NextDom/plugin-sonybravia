@@ -23,17 +23,44 @@ if (!jeedom::apiAccess(init('apikey'), 'sonybravia')) {
     die();
 }
 
-$eqlogic = sonybravia::byLogicalId(init('mac'), 'sonybravia');
-if (!is_object($eqlogic)) {
-    die();
+if (init('test') != '') {
+	echo 'OK';
+	die();
 }
-$array_recu = "";
-foreach ($_GET as $key => $value) {
-    $array_recu = $array_recu . $key . '=' . $value . ' / ';
-    $cmd        = $eqlogic->getCmd('info', $key);
-    if (is_object($cmd)) {
-        $cmd->event($value);
-    }
-}
-log::add('sonybravia', 'debug', 'Reception de : ' . $array_recu);
 
+$result = json_decode(file_get_contents("php://input"), true);
+if (!is_array($result)) {
+	die();
+}
+
+$var_to_log = '';
+
+if (isset($result['device'])) {
+    foreach ($result['device'] as $key => $data) {
+            log::add('sonybravia','debug','This is a message from sonybravia program ' . $key);
+    		$eqlogic = sonybravia::byLogicalId($data['device'], 'sonybravia');
+    		if (is_object($eqlogic)) {
+                $flattenResults = array_flatten($data);
+                foreach ($eqlogic->getCmd('info') as $cmd) {
+                    $logicalId = $cmd->getLogicalId();
+                    if ( isset($flattenResults[$logicalId]) ) {
+                        $cmd->event($flattenResults[$logicalId]);
+                    }
+                }
+            }
+            log::add('sonybravia','debug',$var_to_log);
+        }
+    }
+
+function array_flatten($array) {
+    global $var_to_log;
+    $return = array();
+    foreach ($array as $key => $value) {
+        $var_to_log = $var_to_log . $key . '=' . $value . '|';
+        if (is_array($value))
+            $return = array_merge($return, array_flatten($value));
+        else
+            $return[$key] = $value;
+    }
+    return $return;
+}
