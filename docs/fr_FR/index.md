@@ -1,10 +1,10 @@
-﻿# Présentation
-
+Présentation
+===
 Plugin de communication avec les TV Sony Bravia pour la solution domotique Jeedom
 
 
-# Configuration du plugin
-
+Configuration du plugin
+===
 Après téléchargement du plugin, il vous suffit juste d'activer celui-ci, il n'y a aucune configuration à ce niveau.
 
 ## Configuration des équipements
@@ -48,8 +48,8 @@ Renseigner l'adresse ip et mac sur l'équipement, sauvegarder puis exécuter le 
 
 Suivre les indications ensuite.
 
-# Commandes
-
+Commandes
+===
 Exemple de commandes diponibles :
 
 ![sonybravia4](../images/command_info_list.png)
@@ -187,8 +187,8 @@ Il est possible d'envoyer des commandes non implémentées dans le plugin au moy
 |	AndroidMenu	|	AAAAAgAAAMQAAABPAw== |
 
 
-# Compatibilités testées :
-
+Compatibilités testées :
+===
 * KDL-50W829B
 * KDL-42W705B
 * KDL-55W805C
@@ -205,8 +205,8 @@ Il est possible d'envoyer des commandes non implémentées dans le plugin au moy
 * XBR-43X800D Android
 
 
-# Bug
-
+Bug
+===
 En cas de bug avéré du plugin il est possible d'ouvrir une issue :
 
 [https://github.com/Jeedom-Plugins-Extra/plugin-sony-bravia/issues](https://github.com/Jeedom-Plugins-Extra/plugin-sony-bravia/issues)

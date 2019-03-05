@@ -2,14 +2,32 @@
 #
 #
 import os
-from bravia import BraviaRC
 import sys
 import time
 import threading
-from optparse import OptionParser
-from datetime import datetime
+import logging
+import argparse
+import datetime
 import signal
 import subprocess
+import signal
+import globals
+import json
+from optparse import OptionParser
+from braviarc import BraviaRC
+from threading import Timer
+import _thread as thread
+try:
+	from jeedom.jeedom import *
+except ImportError as ex:
+	print("Error: importing module from jeedom folder")
+	print(ex)
+	sys.exit(1)
+
+try:
+    import queue
+except ImportError:
+	import Queue as queue
 
 ### Enter the IP address, PSK and MAC address of the TV below
 ip = ''
@@ -19,19 +37,21 @@ apikey = ''
 jeedomadress = ''
 
 class SonyBravia:
-	""" Fetch teleinformation datas and call user callback
-	each time all data are collected
-	"""
- 
-	def __init__(self, ipadress, macadress, psk, apikey, jeedomadress):
-		self._ipadress = ipadress
-		self._macadress = macadress
-		self._psk = psk
-		self._apikey = apikey
-		self._jeedomadress = jeedomadress
-		self._braviainstance = BraviaRC(self._ipadress, self._psk, self._macadress)
+	import globals
+	def __init__(self):
+		logging.debug("SONYBRAVIA------INIT CONNECTION")
+		if globals.cookie:
+			logging.debug("SONYBRAVIA------COOKIE MODE")
+			globals.SONYBRAVIA_COM = BraviaRC(globals.tvip, None, globals.mac)
+			if globals.SONYBRAVIA_COM.connect(globals.psk, 'Jeedom', 'Jeedom') == False:
+				print ("Récupération du pin")
+				sys.exit()
+		else:
+			logging.debug("SONYBRAVIA------PSK MODE")
+			globals.SONYBRAVIA_COM = BraviaRC(globals.tvip, globals.psk, globals.mac)
 
 	def run(self):
+		logging.debug("SONYBRAVIA------RUN")
 		Donnees = {}
 		_Donnees = {}
 		_RAZ = datetime.now()
@@ -39,15 +59,10 @@ class SonyBravia:
 		Apps = {}
 		_RazCalcul = 0
 		_Separateur = "&"
-		_SendData = ""
 		def target():
 			self.process = None
-			#logger.debug("Thread started, timeout = " + str(timeout)+", command : "+str(self.cmd))
 			self.process = subprocess.Popen(self.cmd + _SendData, shell=True)
-			#print(self.cmd + _SendData)
 			self.process.communicate()
-			#logger.debug("Return code: " + str(self.process.returncode))
-			#logger.debug("Thread finished")
 			self.timer.cancel()
 
 		def timer_callback():
@@ -63,21 +78,24 @@ class SonyBravia:
 				self._log.warning("Thread not alive")
 		tvstatus = ""
 		try:
-			Sources = self._braviainstance.load_source_list()
-			Apps = self._braviainstance.load_app_list()
+			Sources = globals.SONYBRAVIA_COM.load_source_list()
+			Apps = globals.SONYBRAVIA_COM.load_app_list()
+			#Sources = self._braviainstance.load_source_list()
+			#Apps = self._braviainstance.load_app_list()
+			_tmp = ""
 			for cle, valeur in Sources.items():
 				_tmp += cle.replace(' ' , '%20')
 				_tmp += "|"
-			#print (_tmp)
 			Donnees["sources"] = _tmp
 			_tmp = ""
 			for cle, valeur in Apps.items():
 				_tmp += cle.replace(' ' , '%20') + "|"
-			_tmp = _tmp.replace('&', '%26')
-			_tmp = _tmp.replace('\'', '%27')
+				_tmp = _tmp.replace('&', '%26')
+				_tmp = _tmp.replace('\'', '%27')
 			Donnees["apps"] = _tmp
 		except Exception:
 					errorCom = "Connection error"
+					logging.error(errorCom)
 		while(1):
 			_RazCalcul = datetime.now() - _RAZ
 			if(_RazCalcul.seconds > 8):
@@ -86,26 +104,29 @@ class SonyBravia:
 				del _Donnees
 				Donnees = {}
 				_Donnees = {}
-			_SendData = ""
 			try:
-				tvstatus = self._braviainstance.get_power_status()
+				tvstatus = globals.SONYBRAVIA_COM.get_power_status()
+				#tvstatus = self._braviainstance.get_power_status()
 				Donnees["status"] = tvstatus
 			except KeyError:
 				print('TV not found')
 				sys.exit()
 			if tvstatus == 'active':
 				try:
-					tvinfo = self._braviainstance.get_system_info()
+					tvinfo = globals.SONYBRAVIA_COM.get_system_info()
+					#tvinfo = self._braviainstance.get_system_info()
 					Donnees["model"] = tvinfo['model']
 				except:
 					print('Model not found')
 				try:
-					vol = self._braviainstance.get_volume_info()
+					vol = globals.SONYBRAVIA_COM.get_volume_info()
+					#vol = self._braviainstance.get_volume_info()
 					Donnees["volume"] = str(vol['volume'])
 				except:
 					print('Volume not found')
 				try:
-					tvPlaying = self._braviainstance.get_playing_info()
+					tvPlaying = globals.SONYBRAVIA_COM.get_playing_info()
+					#tvPlaying = self._braviainstance.get_playing_info()
 					#print (tvPlaying)
 					if not tvPlaying:
 						Donnees["source"] = "Application"
@@ -138,7 +159,9 @@ class SonyBravia:
 							if tvPlaying['startDateTime'] is not None :
 								if tvPlaying['startDateTime'] != '':
 									Donnees["debut"] = tvPlaying['startDateTime']
-									Donnees["debut_p"], Donnees["fin_p"], Donnees["pourcent_p"] = self._braviainstance.playing_time(tvPlaying['startDateTime'],tvPlaying['durationSec'])
+									_tmp = globals.SONYBRAVIA_COM.playing_time(tvPlaying['startDateTime'],tvPlaying['durationSec'])
+									#_tmp = self._braviainstance.playing_time(tvPlaying['startDateTime'],tvPlaying['durationSec'])
+									Donnees["debut_p"], Donnees["pourcent_p"],Donnees["fin_p"] = _tmp['start_time'], str(_tmp['media_position_perc']), _tmp['end_time']
 								else:
 									Donnees["debut_p"] = ''
 									Donnees["fin_p"] = ''
@@ -169,70 +192,209 @@ class SonyBravia:
 					Donnees["volume"] = ""
 				except:
 					print('Cannot reset Playing Info')
-			self.cmd = "curl -L -s -G --max-time 15 " + self._jeedomadress + " -d 'apikey=" + self._apikey + "&mac=" + self._macadress
+			_SendData = {}
+			PENDING_CHANGES = False
 			for cle, valeur in Donnees.items():
 				if(cle in _Donnees):
 					if (Donnees[cle] != _Donnees[cle]):
-						_SendData += _Separateur + cle +'='+ valeur
+						_SendData[cle] = valeur
 						_Donnees[cle] = valeur
+						PENDING_CHANGES = True
 				else:
-					_SendData += _Separateur + cle +'='+ valeur
+					_SendData[cle] = valeur
 					_Donnees[cle] = valeur
-			_SendData += "'"
-			if _SendData != "'":
-				try:
-					thread = threading.Thread(target=target)
-					self.timer = threading.Timer(int(5), timer_callback)
-					self.timer.start()
-					thread.start()
-				except Exception:
-					errorCom = "Connection error"
-			time.sleep(2)
+					PENDING_CHANGES = True
+			try:
+				if PENDING_CHANGES :
+					_SendData["device"] = globals.mac
+					globals.JEEDOM_COM.add_changes('device::'+globals.mac,_SendData)
+			except Exception:
+				errorCom = "Connection error"
+				logging.error(errorCom)
+			time.sleep(1)
 
 	def exit_handler(self, *args):
-		self.terminate()
+		logging.debug("terminate")
+		#self.terminate()
+
+# -------------------------------
+# main method to manage actions
+# -------------------------------
+def action_handler(message):
+	try:
+		if message['device'] == globals.mac:
+			if message['command'] == 'turn_on':
+				globals.SONYBRAVIA_COM.turn_on()
+			if message['command'] == 'turn_off':
+				globals.SONYBRAVIA_COM.turn_off()
+			if message['command'] == 'select_source':
+				globals.SONYBRAVIA_COM.select_source(command_param)
+			if message['command'] == 'set_volume':
+				globals.SONYBRAVIA_COM.set_volume_level(command_param)
+			if message['command'] == 'start_app':
+				globals.SONYBRAVIA_COM.start_app(command_param)
+			if message['command'] == 'volume_up':
+				globals.SONYBRAVIA_COM.volume_up()
+			if message['command'] == 'volume_down':
+				globals.SONYBRAVIA_COM.volume_down()
+			if message['command'] == 'mute_volume':
+				globals.SONYBRAVIA_COM.mute_volume(command_param)
+			if message['command'] == 'play_content':
+				globals.SONYBRAVIA_COM.play_content(command_param)
+			if message['command'] == 'media_play':
+				globals.SONYBRAVIA_COM.media_play()
+			if message['command'] == 'media_pause':
+				globals.SONYBRAVIA_COM.media_pause()
+			if message['command'] == 'media_previous_track':
+				globals.SONYBRAVIA_COM.media_previous_track()
+			if message['command'] == 'media_next_track':
+				globals.SONYBRAVIA_COM.media_next_track()
+			if message['command'] == 'start_app':
+				globals.SONYBRAVIA_COM.start_app(command_param)
+			if message['command'] == 'ircc':
+				cmdlist=message['commandparam'].split(";")
+				for cmdircc in cmdlist :
+					globals.SONYBRAVIA_COM.send_req_ircc(cmdircc)
+					time.sleep(0.25)
+	except KeyError:
+		print('TV not found')
 
 
-if __name__ == "__main__":
-	usage = "usage: %prog [options]"
-	parser = OptionParser(usage)
-	parser.add_option("-t", "--tvip", dest="ip", help="IP de la tv")
-	parser.add_option("-m", "--mac", dest="mac", help="IP de la tv")
-	parser.add_option("-s", "--psk", dest="psk", help="Cle")
-	parser.add_option("-k", "--apikey", dest="apikey", help="IP de la tv")
-	parser.add_option("-a", "--jeedomadress", dest="jeedomadress", help="IP de la tv")
-	(options, args) = parser.parse_args()
-	if options.ip:
+def read_socket(cycle):
+	while True :
 		try:
-			ip = options.ip
-		except:
-			print('Erreur d ip de la tv')
-	if options.mac:
+			global JEEDOM_SOCKET_MESSAGE
+			if not JEEDOM_SOCKET_MESSAGE.empty():
+				logging.debug("SOCKET-READ------Message received in socket JEEDOM_SOCKET_MESSAGE")
+				message = json.loads(JEEDOM_SOCKET_MESSAGE.get())
+				if message['apikey'] != globals.apikey:
+					logging.error("SOCKET-READ------Invalid apikey from socket : " + str(message))
+					return
+				logging.debug('SOCKET-READ------Received command from jeedom : '+str(message['cmd']))
+				if message['cmd'] == 'action':
+					logging.debug('SOCKET-READ------Attempt an action on a device')
+					thread.start_new_thread( action_handler, (message,))
+					logging.debug('SOCKET-READ------Action Thread Launched')
+				elif message['cmd'] == 'logdebug':
+					logging.info('SOCKET-READ------Passage du demon en mode debug force')
+					log = logging.getLogger()
+					for hdlr in log.handlers[:]:
+						log.removeHandler(hdlr)
+					jeedom_utils.set_log_level('debug')
+					logging.debug('SOCKET-READ------<----- La preuve ;)')
+				elif message['cmd'] == 'lognormal':
+					logging.info('SOCKET-READ------Passage du demon en mode de log normal')
+					log = logging.getLogger()
+					for hdlr in log.handlers[:]:
+						log.removeHandler(hdlr)
+					jeedom_utils.set_log_level('error')
+		except Exception as e:
+			logging.error("SOCKET-READ------Exception on socket : %s" % str(e))
+			logging.debug(traceback.format_exc())
+		time.sleep(cycle)
+
+def listen():
+	globals.PENDING_ACTION=False
+	jeedom_socket.open()
+	logging.info("GLOBAL------Start listening...")
+	globals.SONYBRAVIA = SonyBravia()
+	logging.info("GLOBAL------Preparing SonyBravia...")
+	#globals.JEEDOM_COM.send_change_immediate({'learn_mode' : 0,'source' : globals.daemonname});
+	thread.start_new_thread( read_socket, (globals.cycle,))
+	logging.debug('GLOBAL------Read Socket Thread Launched')
+	while 1:
 		try:
-			mac = options.mac
-		except:
-			print('Erreur mac de la tv')
-	if options.psk:
-		try:
-			psk = options.psk
-		except:
-			print('Erreur psk de la tv')
-	if options.apikey:
-		try:
-			apikey = options.apikey
-		except:
-			print('Erreur apikey de jeedom')
-	if options.jeedomadress:
-		try:
-			jeedomadress = options.jeedomadress
-		except:
-			print('Erreur adresse de jeedom')
-	pid = str(os.getpid())
-	tmpmac = mac.replace(":","")
-	file = open("/tmp/jeedom/sonybravia/sonybravia_"+tmpmac+".pid", "w")
-	file.write("%s\n" % pid) 
-	file.close()
-	sonybravia = SonyBravia(ip, mac, psk, apikey, jeedomadress)
-	signal.signal(signal.SIGTERM, SonyBravia.exit_handler)
-	sonybravia.run()
-	sys.exit()
+			globals.SONYBRAVIA.run()
+		except Exception as e:
+			shutdown()
+
+def handler(signum=None, frame=None):
+	logging.debug("Signal %i caught, exiting..." % int(signum))
+	shutdown()
+
+def shutdown():
+	logging.debug("GLOBAL------Shutdown")
+	#signal.signal(signal.SIGTERM, globals.SONYBRAVIA.exit_handler())
+	logging.debug("Shutdown")
+	logging.debug("Removing PID file " + str(globals.pidfile))
+	try:
+		os.remove(globals.pidfile)
+	except:
+		pass
+	try:
+		jeedom_socket.close()
+	except:
+		pass
+	logging.debug("Exit 0")
+	sys.stdout.flush()
+	os._exit(0)
+
+globals.log_level = "error"
+globals.socketport = 55052
+globals.sockethost = '127.0.0.1'
+globals.apikey = ''
+globals.callback = ''
+globals.cycle = 2;
+
+parser = argparse.ArgumentParser(description='Sony Daemon for Jeedom plugin')
+parser.add_argument("--tvip", help="IP TV", type=str)
+parser.add_argument("--mac", help="MAC TV", type=str)
+parser.add_argument("--psk", help="Cle partage", type=str)
+parser.add_argument("--apikey", help="Value to write", type=str)
+parser.add_argument("--loglevel", help="Log Level for the daemon", type=str)
+parser.add_argument("--callback", help="Value to write", type=str)
+parser.add_argument("--socketport", help="Socket Port", type=str)
+parser.add_argument("--sockethost", help="Socket Host", type=str)
+parser.add_argument("--cycle", help="Cycle to send event", type=str)
+parser.add_argument("--cookie", help="Authentification Method", type=str)
+args = parser.parse_args()
+
+if args.tvip:
+	globals.tvip = args.tvip
+if args.mac:
+	globals.mac = args.mac
+if args.psk:
+	globals.psk = args.psk
+if args.loglevel:
+	globals.log_level = args.loglevel
+if args.apikey:
+	globals.apikey = args.apikey
+if args.callback:
+	globals.callback = args.callback
+if args.cycle:
+	globals.cycle = float(args.cycle)
+if args.socketport:
+	globals.socketport = args.socketport
+if args.sockethost:
+	globals.sockethost = args.sockethost
+if args.cookie:
+	globals.cookie = args.cookie
+
+globals.socketport = int(globals.socketport)
+globals.cycle = float(globals.cycle)
+
+jeedom_utils.set_log_level(globals.log_level)
+logging.info('GLOBAL------Start sonyd')
+logging.info('GLOBAL------Log level : '+str(globals.log_level))
+logging.info('GLOBAL------Socket port : '+str(globals.socketport))
+logging.info('GLOBAL------Socket host : '+str(globals.sockethost))
+logging.info('GLOBAL------Callback : '+str(globals.callback))
+logging.info('GLOBAL------Apikey : '+str(globals.apikey))
+logging.info('GLOBAL------Cookie : '+str(globals.cookie))
+logging.info('GLOBAL------Cycle : '+str(globals.cycle))
+logging.info('GLOBAL------IPTV : '+str(globals.tvip))
+logging.info('GLOBAL------MAC : '+str(globals.mac))
+logging.info('GLOBAL------PSK : '+str(globals.psk))
+
+signal.signal(signal.SIGINT, handler)
+signal.signal(signal.SIGTERM, handler)
+tmpmac = globals.mac.replace(":","")
+globals.pidfile = "/tmp/jeedom/sonybravia/sonybravia_"+tmpmac+".pid"
+jeedom_utils.write_pid(str(globals.pidfile))
+globals.JEEDOM_COM = jeedom_com(apikey = globals.apikey,url = globals.callback,cycle=globals.cycle)
+if not globals.JEEDOM_COM.test():
+	logging.error('GLOBAL------Network communication issues. Please fix your Jeedom network configuration.')
+	shutdown()
+jeedom_socket = jeedom_socket(port=globals.socketport,address=globals.sockethost)
+listen()
+sys.exit()

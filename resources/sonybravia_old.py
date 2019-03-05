@@ -29,42 +29,57 @@ class SonyBravia:
 		self._psk = psk
 		self._apikey = apikey
 		self._jeedomadress = jeedomadress
-		self._braviainstance = BraviaRC(self._ipadress, None, self._macadress)
-		if self._braviainstance.connect(psk, 'Jeedom', 'Jeedom') == False:
-			print ("Récupération du pin")
-			sys.exit()
+		self._braviainstance = BraviaRC(self._ipadress, self._psk, self._macadress)
 
 	def run(self):
 		Donnees = {}
 		_Donnees = {}
+		_RAZ = datetime.now()
 		Sources = {}
 		Apps = {}
-		_RAZ = datetime.now()
-		_RAZ2 = datetime.now()
 		_RazCalcul = 0
 		_Separateur = "&"
-		_tmp = ""
 		_SendData = ""
 		def target():
 			self.process = None
-			#print (self.cmd + _SendData)
+			#logger.debug("Thread started, timeout = " + str(timeout)+", command : "+str(self.cmd))
 			self.process = subprocess.Popen(self.cmd + _SendData, shell=True)
+			#print(self.cmd + _SendData)
 			self.process.communicate()
+			#logger.debug("Return code: " + str(self.process.returncode))
+			#logger.debug("Thread finished")
 			self.timer.cancel()
 
 		def timer_callback():
+			#logger.debug("Thread timeout, terminate it")
 			if self.process.poll() is None:
 				try:
 					self.process.kill()
 				except OSError as error:
-					print ("Error: %s " % error)
-				print("Thread terminated")
+					#logger.error("Error: %s " % error)
+					self._log.error("Error: %s " % error)
+				self._log.warning("Thread terminated")
 			else:
-				print ("Thread not alive")
+				self._log.warning("Thread not alive")
 		tvstatus = ""
+		try:
+			Sources = self._braviainstance.load_source_list()
+			Apps = self._braviainstance.load_app_list()
+			_tmp = ""
+			for cle, valeur in Sources.items():
+				_tmp += cle.replace(' ' , '%20')
+				_tmp += "|"
+			Donnees["sources"] = _tmp
+			_tmp = ""
+			for cle, valeur in Apps.items():
+				_tmp += cle.replace(' ' , '%20') + "|"
+				_tmp = _tmp.replace('&', '%26')
+				_tmp = _tmp.replace('\'', '%27')
+			Donnees["apps"] = _tmp
+		except Exception:
+					errorCom = "Connection error"
 		while(1):
 			_RazCalcul = datetime.now() - _RAZ
-			_RazCalcul2 = datetime.now() - _RAZ2
 			if(_RazCalcul.seconds > 8):
 				_RAZ = datetime.now()
 				del Donnees
@@ -72,24 +87,6 @@ class SonyBravia:
 				Donnees = {}
 				_Donnees = {}
 			_SendData = ""
-			if(_RazCalcul2.seconds > 60):
-				_RAZ2 = datetime.now()
-				try:
-					Sources = self._braviainstance.load_source_list()
-					Apps = self._braviainstance.load_app_list()
-					_tmp = ""
-					for cle, valeur in Sources.items():
-						_tmp += cle.replace(' ' , '%20')
-						_tmp += "|"
-					Donnees["sources"] = _tmp
-					_tmp = ""
-					for cle, valeur in Apps.items():
-						_tmp += cle.replace('\'' , '%27') + "|"
-					_tmp = _tmp.replace('&', '%26')
-					_tmp = _tmp.replace(' ', '%20')
-					Donnees["apps"] = _tmp
-				except Exception:
-							errorCom = "Connection error"
 			try:
 				tvstatus = self._braviainstance.get_power_status()
 				Donnees["status"] = tvstatus
@@ -115,7 +112,7 @@ class SonyBravia:
 						Donnees["program"] = ""
 						Donnees["nom_chaine"] = ""
 						Donnees["debut"] = ""
-						Donnees["debut_p"] = ""
+						Donnees["debut_p"] = ''
 						Donnees["fin_p"] = ''
 						Donnees["pourcent_p"] = '0'
 						Donnees["duree"] = ""
@@ -124,19 +121,19 @@ class SonyBravia:
 						Donnees["source"] = ((tvPlaying['source'])[-4:]).upper() + (tvPlaying['uri'])[-1:]
 						try:
 							if tvPlaying['dispNum'] is not None :
-								Donnees["chaine"] = tvPlaying['dispNum'].replace(' ','%20').replace('\'','%27').replace('é','%C3%A9')
+								Donnees["chaine"] = tvPlaying['dispNum'].replace('\'','%27').replace(' ','%20').replace('é','%C3%A9')
 						except:
-							print('not found')
+							print('num chaine not found')
 						try:
 							if tvPlaying['programTitle'] is not None :
 								Donnees["program"] = tvPlaying['programTitle'].replace(' ','%20').replace('é','%C3%A9').replace('\'','%27')
 						except:
-							print('program not found')
+							print('program info not found')
 						try:
 							if tvPlaying['title'] is not None :
 								Donnees["nom_chaine"] = tvPlaying['title'].replace(' ','%20').replace('\'','%27').replace('é','%C3%A9')
 						except:
-							print('not found')
+							print('nom chaine not found')
 						try:
 							if tvPlaying['startDateTime'] is not None :
 								if tvPlaying['startDateTime'] != '':
@@ -173,7 +170,6 @@ class SonyBravia:
 					Donnees["volume"] = ""
 				except:
 					print('Cannot reset Playing Info')
-					
 			self.cmd = "curl -L -s -G --max-time 15 " + self._jeedomadress + " -d 'apikey=" + self._apikey + "&mac=" + self._macadress
 			for cle, valeur in Donnees.items():
 				if(cle in _Donnees):
@@ -190,7 +186,7 @@ class SonyBravia:
 					self.timer = threading.Timer(int(5), timer_callback)
 					self.timer.start()
 					thread.start()
-				except:
+				except Exception:
 					errorCom = "Connection error"
 			time.sleep(2)
 
@@ -202,10 +198,10 @@ if __name__ == "__main__":
 	usage = "usage: %prog [options]"
 	parser = OptionParser(usage)
 	parser.add_option("-t", "--tvip", dest="ip", help="IP de la tv")
-	parser.add_option("-m", "--mac", dest="mac", help="Mac de la tv")
+	parser.add_option("-m", "--mac", dest="mac", help="IP de la tv")
 	parser.add_option("-s", "--psk", dest="psk", help="Cle")
-	parser.add_option("-k", "--apikey", dest="apikey", help="Cle jeedom")
-	parser.add_option("-a", "--jeedomadress", dest="jeedomadress", help="IP Jeedom")
+	parser.add_option("-k", "--apikey", dest="apikey", help="IP de la tv")
+	parser.add_option("-a", "--jeedomadress", dest="jeedomadress", help="IP de la tv")
 	(options, args) = parser.parse_args()
 	if options.ip:
 		try:
