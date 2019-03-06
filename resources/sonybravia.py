@@ -304,6 +304,10 @@ def listen():
 	logging.debug('GLOBAL------Read Socket Thread Launched')
 	while 1:
 		try:
+			log = logging.getLogger()
+			for hdlr in log.handlers[:]:
+				log.removeHandler(hdlr)
+			jeedom_utils.set_log_level('error')
 			globals.SONYBRAVIA.run()
 		except Exception as e:
 			shutdown()
