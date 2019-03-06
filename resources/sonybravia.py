@@ -211,7 +211,7 @@ class SonyBravia:
 			except Exception:
 				errorCom = "Connection error"
 				logging.error(errorCom)
-			time.sleep(1)
+			time.sleep(globals.sommeil)
 
 	def exit_handler(self, *args):
 		logging.debug("terminate")
@@ -347,6 +347,7 @@ parser.add_argument("--socketport", help="Socket Port", type=str)
 parser.add_argument("--sockethost", help="Socket Host", type=str)
 parser.add_argument("--cycle", help="Cycle to send event", type=str)
 parser.add_argument("--cookie", help="Authentification Method", type=str)
+parser.add_argument("--sommeil", help="Waiting time between check", type=str)
 args = parser.parse_args()
 
 if args.tvip:
@@ -369,6 +370,8 @@ if args.sockethost:
 	globals.sockethost = args.sockethost
 if args.cookie:
 	globals.cookie = args.cookie
+if args.sommeil:
+	globals.sommeil = float(args.sommeil)
 
 globals.socketport = int(globals.socketport)
 globals.cycle = float(globals.cycle)
@@ -379,6 +382,7 @@ logging.info('GLOBAL------Log level : '+str(globals.log_level))
 logging.info('GLOBAL------Socket port : '+str(globals.socketport))
 logging.info('GLOBAL------Socket host : '+str(globals.sockethost))
 logging.info('GLOBAL------Callback : '+str(globals.callback))
+logging.info('GLOBAL------Sommeil : '+str(globals.sommeil))
 logging.info('GLOBAL------Apikey : '+str(globals.apikey))
 logging.info('GLOBAL------Cookie : '+str(globals.cookie))
 logging.info('GLOBAL------Cycle : '+str(globals.cycle))

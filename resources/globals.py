@@ -6,6 +6,7 @@ pidfile = '/tmp/jeedom/sonybravia/sonybravia_.pid'
 apikey = ''
 callback = ''
 cycle = 0.3
+sommeil = 1
 daemonname=''
 socketport=55052
 sockethost='127.0.0.1'
