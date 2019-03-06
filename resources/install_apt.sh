@@ -1,3 +1,4 @@
+PROGRESS_FILE=/tmp/jeedom/sonybravia/dependance
 PROGRESS_FILE=$1
 touch ${PROGRESS_FILE}
 echo 0 > ${PROGRESS_FILE}

@@ -213,6 +213,7 @@ class sonybravia extends eqLogic
         $cmd    .= ' --apikey ' . jeedom::getApiKey('sonybravia');
         $cmd    .= ' --cookie ' . $cookie;
         $cmd    .= ' --loglevel ' . log::convertLogLevel(log::getLogLevel('sonybravia'));
+        $cmd    .= ' --sommeil ' . config::byKey('sommeil', 'sonybravia', '1');
         log::add('sonybravia', 'info', 'Lancement démon sonybravia : ' . $cmd);
         $result = exec($cmd . ' >> ' . log::getPathToLog('sonybravia_local') . ' 2>&1 &'); //variable inutilisé
         $i      = 0;

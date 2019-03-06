@@ -61,6 +61,12 @@ try {
 			</div>
 	</div>
     <div class="form-group">
+			<label class="col-sm-4 control-label">{{Sommeil (s)}}</label>
+			<div class="col-sm-2">
+				<input class="configKey form-control" data-l1key="sommeil" placeholder="{{1}}"/>
+			</div>
+	</div>
+    <div class="form-group">
         <label class="col-sm-4 control-label"></label>
         <div class="col-sm-4">
     		<a class="btn btn-warning changeLogLive" data-log="logdebug"><i class="fa fa-cogs"></i> {{Mode debug forcé temporaire}}</a>
