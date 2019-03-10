@@ -129,7 +129,7 @@ foreach (jeedom::getConfiguration('eqLogic:category') as $key => $value) {
 				<br/>
 				Renseigner les informations sur l'équipement puis sauvegarder.<br/>
 
-                                <a class="btn btn-default eqLogicAction" onclick="window.open('plugins/sonybravia/doc/images/config.png')"><i class="fa fa-question-circle"></i>{{ Plus d'infos}}</a>
+                                <a class="btn btn-default eqLogicAction" onclick="window.open('plugins/sonybravia/docs/images/config.png')"><i class="fa fa-question-circle"></i>{{ Plus d'infos}}</a>
 				</div>
 			</div>
 

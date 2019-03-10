@@ -40,11 +40,11 @@ class SonyBravia:
 	import globals
 	def __init__(self):
 		logging.debug("SONYBRAVIA------INIT CONNECTION")
-		if globals.cookie:
+		if(globals.cookie == '1') or (globals.cookie == 'true'):
 			logging.debug("SONYBRAVIA------COOKIE MODE")
 			globals.SONYBRAVIA_COM = BraviaRC(globals.tvip, None, globals.mac)
 			if globals.SONYBRAVIA_COM.connect(globals.psk, 'Jeedom', 'Jeedom') == False:
-				print ("Récupération du pin")
+				print ("SONYBRAVIA------PAS D AUTHENTIFICATION RECUPERATION DU PIN")
 				sys.exit()
 		else:
 			logging.debug("SONYBRAVIA------PSK MODE")
@@ -293,6 +293,14 @@ def read_socket(cycle):
 			logging.debug(traceback.format_exc())
 		time.sleep(cycle)
 
+def log_starting(cycle):
+	time.sleep(30)
+	logging.info('GLOBAL------Passage des logs en normal')
+	log = logging.getLogger()
+	for hdlr in log.handlers[:]:
+		log.removeHandler(hdlr)
+	jeedom_utils.set_log_level('error')
+
 def listen():
 	globals.PENDING_ACTION=False
 	jeedom_socket.open()
@@ -304,10 +312,7 @@ def listen():
 	logging.debug('GLOBAL------Read Socket Thread Launched')
 	while 1:
 		try:
-			log = logging.getLogger()
-			for hdlr in log.handlers[:]:
-				log.removeHandler(hdlr)
-			jeedom_utils.set_log_level('error')
+			thread.start_new_thread( log_starting, (globals.cycle,))
 			globals.SONYBRAVIA.run()
 		except Exception as e:
 			shutdown()

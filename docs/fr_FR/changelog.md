@@ -2,10 +2,14 @@
 
 Pour toutes demandes : [https://github.com/NextDom/plugin-sonybravia/issues](https://github.com/NextDom/plugin-sonybravia/issues)
 
+### 2.1.2
+
+* Bug sur le mode normal (PSK)
+
 ### 2.1.1
 
 * Correction sur les dépendances
-* Ajout d'un timer sommeil pour configurer les fréquences de remonté des status. 
+* Ajout d'un timer sommeil pour configurer les fréquences de remonté des status.
 
 ### 2.1.0
 
