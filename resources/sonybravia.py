@@ -228,19 +228,19 @@ def action_handler(message):
 			if message['command'] == 'turn_off':
 				globals.SONYBRAVIA_COM.turn_off()
 			if message['command'] == 'select_source':
-				globals.SONYBRAVIA_COM.select_source(command_param)
+				globals.SONYBRAVIA_COM.select_source(message['commandparam'])
 			if message['command'] == 'set_volume':
-				globals.SONYBRAVIA_COM.set_volume_level(command_param)
+				globals.SONYBRAVIA_COM.set_volume_level(message['commandparam'])
 			if message['command'] == 'start_app':
-				globals.SONYBRAVIA_COM.start_app(command_param)
+				globals.SONYBRAVIA_COM.start_app(message['commandparam'])
 			if message['command'] == 'volume_up':
 				globals.SONYBRAVIA_COM.volume_up()
 			if message['command'] == 'volume_down':
 				globals.SONYBRAVIA_COM.volume_down()
 			if message['command'] == 'mute_volume':
-				globals.SONYBRAVIA_COM.mute_volume(command_param)
+				globals.SONYBRAVIA_COM.mute_volume(message['commandparam'])
 			if message['command'] == 'play_content':
-				globals.SONYBRAVIA_COM.play_content(command_param)
+				globals.SONYBRAVIA_COM.play_content(message['commandparam'])
 			if message['command'] == 'media_play':
 				globals.SONYBRAVIA_COM.media_play()
 			if message['command'] == 'media_pause':
@@ -250,7 +250,7 @@ def action_handler(message):
 			if message['command'] == 'media_next_track':
 				globals.SONYBRAVIA_COM.media_next_track()
 			if message['command'] == 'start_app':
-				globals.SONYBRAVIA_COM.start_app(command_param)
+				globals.SONYBRAVIA_COM.start_app(message['commandparam'])
 			if message['command'] == 'ircc':
 				cmdlist=message['commandparam'].split(";")
 				for cmdircc in cmdlist :

@@ -2,6 +2,10 @@
 
 Pour toutes demandes : [https://github.com/NextDom/plugin-sonybravia/issues](https://github.com/NextDom/plugin-sonybravia/issues)
 
+### 2.1.3
+
+* Erreur lors de l'envoi des commandes. 
+
 ### 2.1.2
 
 * Bug sur le mode normal (PSK)
