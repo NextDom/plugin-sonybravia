@@ -29,13 +29,6 @@ try:
 except ImportError:
 	import Queue as queue
 
-### Enter the IP address, PSK and MAC address of the TV below
-ip = ''
-psk = ''
-mac = ''
-apikey = ''
-jeedomadress = ''
-
 class SonyBravia:
 	import globals
 	def __init__(self):
@@ -59,39 +52,20 @@ class SonyBravia:
 		Apps = {}
 		_RazCalcul = 0
 		_Separateur = "&"
-		def target():
-			self.process = None
-			self.process = subprocess.Popen(self.cmd + _SendData, shell=True)
-			self.process.communicate()
-			self.timer.cancel()
-
-		def timer_callback():
-			#logger.debug("Thread timeout, terminate it")
-			if self.process.poll() is None:
-				try:
-					self.process.kill()
-				except OSError as error:
-					#logger.error("Error: %s " % error)
-					self._log.error("Error: %s " % error)
-				self._log.warning("Thread terminated")
-			else:
-				self._log.warning("Thread not alive")
 		tvstatus = ""
 		try:
 			Sources = globals.SONYBRAVIA_COM.load_source_list()
 			Apps = globals.SONYBRAVIA_COM.load_app_list()
-			#Sources = self._braviainstance.load_source_list()
-			#Apps = self._braviainstance.load_app_list()
 			_tmp = ""
 			for cle, valeur in Sources.items():
-				_tmp += cle.replace(' ' , '%20')
+				_tmp += cle.replace(' ' , '\x20')
 				_tmp += "|"
 			Donnees["sources"] = _tmp
 			_tmp = ""
 			for cle, valeur in Apps.items():
-				_tmp += cle.replace(' ' , '%20') + "|"
-				_tmp = _tmp.replace('&', '%26')
-				_tmp = _tmp.replace('\'', '%27')
+				_tmp += cle.replace(' ' , '\x20') + "|"
+				#_tmp = _tmp.replace('&', '%26')
+				#_tmp = _tmp.replace('\'', '%27')
 			Donnees["apps"] = _tmp
 		except Exception:
 					errorCom = "Connection error"
@@ -106,7 +80,7 @@ class SonyBravia:
 				_Donnees = {}
 			try:
 				tvstatus = globals.SONYBRAVIA_COM.get_power_status()
-				#tvstatus = self._braviainstance.get_power_status()
+				logging.debug('SONYBRAVIA------TVSTATUS : ' + tvstatus)
 				Donnees["status"] = tvstatus
 			except KeyError:
 				print('TV not found')
@@ -114,20 +88,18 @@ class SonyBravia:
 			if tvstatus == 'active':
 				try:
 					tvinfo = globals.SONYBRAVIA_COM.get_system_info()
-					#tvinfo = self._braviainstance.get_system_info()
+					logging.debug('SONYBRAVIA------TVINFO : ' + tvinfo['name'] + ' ' + tvinfo['model'])
 					Donnees["model"] = tvinfo['model']
 				except:
 					print('Model not found')
 				try:
 					vol = globals.SONYBRAVIA_COM.get_volume_info()
-					#vol = self._braviainstance.get_volume_info()
 					Donnees["volume"] = str(vol['volume'])
 				except:
 					print('Volume not found')
 				try:
 					tvPlaying = globals.SONYBRAVIA_COM.get_playing_info()
-					#tvPlaying = self._braviainstance.get_playing_info()
-					#print (tvPlaying)
+					#logging.debug('SONYBRAVIA------PLAYINGINFO : ' + tvPlaying)
 					if not tvPlaying:
 						Donnees["source"] = "Application"
 						Donnees["program"] = ""
@@ -142,17 +114,17 @@ class SonyBravia:
 						Donnees["source"] = ((tvPlaying['source'])[-4:]).upper() + (tvPlaying['uri'])[-1:]
 						try:
 							if tvPlaying['dispNum'] is not None :
-								Donnees["chaine"] = tvPlaying['dispNum'].replace('\'','%27').replace(' ','%20').replace('é','%C3%A9')
+								Donnees["chaine"] = tvPlaying['dispNum'].replace('\'','%27').replace(' ','\x20').replace('é','\xe9')
 						except:
 							print('num chaine not found')
 						try:
 							if tvPlaying['programTitle'] is not None :
-								Donnees["program"] = tvPlaying['programTitle'].replace(' ','%20').replace('é','%C3%A9').replace('\'','%27')
+								Donnees["program"] = tvPlaying['programTitle'].replace(' ','\x20').replace('é','\xe9').replace('\'','%27')
 						except:
 							print('program info not found')
 						try:
 							if tvPlaying['title'] is not None :
-								Donnees["nom_chaine"] = tvPlaying['title'].replace(' ','%20').replace('\'','%27').replace('é','%C3%A9')
+								Donnees["nom_chaine"] = tvPlaying['title'].replace(' ','\x20').replace('\'','%27').replace('é','\xe9')
 						except:
 							print('nom chaine not found')
 						try:
@@ -270,7 +242,7 @@ def read_socket(cycle):
 				if message['apikey'] != globals.apikey:
 					logging.error("SOCKET-READ------Invalid apikey from socket : " + str(message))
 					return
-				logging.debug('SOCKET-READ------Received command from jeedom : '+str(message['cmd']))
+				logging.info('SOCKET-READ------Received command from jeedom : '+str(message['cmd']))
 				if message['cmd'] == 'action':
 					logging.debug('SOCKET-READ------Attempt an action on a device')
 					thread.start_new_thread( action_handler, (message,))
@@ -322,8 +294,11 @@ def handler(signum=None, frame=None):
 	shutdown()
 
 def shutdown():
-	logging.debug("GLOBAL------Shutdown")
-	#signal.signal(signal.SIGTERM, globals.SONYBRAVIA.exit_handler())
+	log = logging.getLogger()
+	for hdlr in log.handlers[:]:
+		log.removeHandler(hdlr)
+	jeedom_utils.set_log_level('debug')
+	logging.info("GLOBAL------Shutdown")
 	logging.debug("Shutdown")
 	logging.debug("Removing PID file " + str(globals.pidfile))
 	try:
