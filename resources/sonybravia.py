@@ -14,7 +14,6 @@ import signal
 import globals
 import json
 from optparse import OptionParser
-from braviarc import BraviaRC
 from threading import Timer
 import _thread as thread
 try:
@@ -29,24 +28,19 @@ try:
 except ImportError:
 	import Queue as queue
 
-### Enter the IP address, PSK and MAC address of the TV below
-ip = ''
-psk = ''
-mac = ''
-apikey = ''
-jeedomadress = ''
-
 class SonyBravia:
 	import globals
 	def __init__(self):
 		logging.debug("SONYBRAVIA------INIT CONNECTION")
-		if globals.cookie:
+		if(globals.cookie == '1') or (globals.cookie == 'true'):
+			from braviarc import BraviaRC
 			logging.debug("SONYBRAVIA------COOKIE MODE")
-			globals.SONYBRAVIA_COM = BraviaRC(globals.tvip, None, globals.mac)
+			globals.SONYBRAVIA_COM = BraviaRC(globals.tvip, globals.mac)
 			if globals.SONYBRAVIA_COM.connect(globals.psk, 'Jeedom', 'Jeedom') == False:
-				print ("Récupération du pin")
+				print ("SONYBRAVIA------PAS D AUTHENTIFICATION RECUPERATION DU PIN")
 				sys.exit()
 		else:
+			from bravia import BraviaRC
 			logging.debug("SONYBRAVIA------PSK MODE")
 			globals.SONYBRAVIA_COM = BraviaRC(globals.tvip, globals.psk, globals.mac)
 
@@ -59,39 +53,20 @@ class SonyBravia:
 		Apps = {}
 		_RazCalcul = 0
 		_Separateur = "&"
-		def target():
-			self.process = None
-			self.process = subprocess.Popen(self.cmd + _SendData, shell=True)
-			self.process.communicate()
-			self.timer.cancel()
-
-		def timer_callback():
-			#logger.debug("Thread timeout, terminate it")
-			if self.process.poll() is None:
-				try:
-					self.process.kill()
-				except OSError as error:
-					#logger.error("Error: %s " % error)
-					self._log.error("Error: %s " % error)
-				self._log.warning("Thread terminated")
-			else:
-				self._log.warning("Thread not alive")
 		tvstatus = ""
 		try:
 			Sources = globals.SONYBRAVIA_COM.load_source_list()
 			Apps = globals.SONYBRAVIA_COM.load_app_list()
-			#Sources = self._braviainstance.load_source_list()
-			#Apps = self._braviainstance.load_app_list()
 			_tmp = ""
 			for cle, valeur in Sources.items():
-				_tmp += cle.replace(' ' , '%20')
+				_tmp += cle.replace(' ' , '\x20')
 				_tmp += "|"
 			Donnees["sources"] = _tmp
 			_tmp = ""
 			for cle, valeur in Apps.items():
-				_tmp += cle.replace(' ' , '%20') + "|"
-				_tmp = _tmp.replace('&', '%26')
-				_tmp = _tmp.replace('\'', '%27')
+				_tmp += cle.replace(' ' , '\x20') + "|"
+				#_tmp = _tmp.replace('&', '%26')
+				#_tmp = _tmp.replace('\'', '%27')
 			Donnees["apps"] = _tmp
 		except Exception:
 					errorCom = "Connection error"
@@ -106,7 +81,7 @@ class SonyBravia:
 				_Donnees = {}
 			try:
 				tvstatus = globals.SONYBRAVIA_COM.get_power_status()
-				#tvstatus = self._braviainstance.get_power_status()
+				logging.debug('SONYBRAVIA------TVSTATUS : ' + tvstatus)
 				Donnees["status"] = tvstatus
 			except KeyError:
 				print('TV not found')
@@ -114,20 +89,18 @@ class SonyBravia:
 			if tvstatus == 'active':
 				try:
 					tvinfo = globals.SONYBRAVIA_COM.get_system_info()
-					#tvinfo = self._braviainstance.get_system_info()
+					logging.debug('SONYBRAVIA------TVINFO : ' + tvinfo['name'] + ' ' + tvinfo['model'])
 					Donnees["model"] = tvinfo['model']
 				except:
 					print('Model not found')
 				try:
 					vol = globals.SONYBRAVIA_COM.get_volume_info()
-					#vol = self._braviainstance.get_volume_info()
 					Donnees["volume"] = str(vol['volume'])
 				except:
 					print('Volume not found')
 				try:
 					tvPlaying = globals.SONYBRAVIA_COM.get_playing_info()
-					#tvPlaying = self._braviainstance.get_playing_info()
-					#print (tvPlaying)
+					#logging.debug('SONYBRAVIA------PLAYINGINFO : ' + tvPlaying)
 					if not tvPlaying:
 						Donnees["source"] = "Application"
 						Donnees["program"] = ""
@@ -142,17 +115,17 @@ class SonyBravia:
 						Donnees["source"] = ((tvPlaying['source'])[-4:]).upper() + (tvPlaying['uri'])[-1:]
 						try:
 							if tvPlaying['dispNum'] is not None :
-								Donnees["chaine"] = tvPlaying['dispNum'].replace('\'','%27').replace(' ','%20').replace('é','%C3%A9')
+								Donnees["chaine"] = tvPlaying['dispNum'].replace('\'','%27').replace(' ','\x20').replace('é','\xe9')
 						except:
 							print('num chaine not found')
 						try:
 							if tvPlaying['programTitle'] is not None :
-								Donnees["program"] = tvPlaying['programTitle'].replace(' ','%20').replace('é','%C3%A9').replace('\'','%27')
+								Donnees["program"] = tvPlaying['programTitle'].replace(' ','\x20').replace('é','\xe9').replace('\'','%27')
 						except:
 							print('program info not found')
 						try:
 							if tvPlaying['title'] is not None :
-								Donnees["nom_chaine"] = tvPlaying['title'].replace(' ','%20').replace('\'','%27').replace('é','%C3%A9')
+								Donnees["nom_chaine"] = tvPlaying['title'].replace(' ','\x20').replace('\'','%27').replace('é','\xe9')
 						except:
 							print('nom chaine not found')
 						try:
@@ -228,19 +201,19 @@ def action_handler(message):
 			if message['command'] == 'turn_off':
 				globals.SONYBRAVIA_COM.turn_off()
 			if message['command'] == 'select_source':
-				globals.SONYBRAVIA_COM.select_source(command_param)
+				globals.SONYBRAVIA_COM.select_source(message['commandparam'])
 			if message['command'] == 'set_volume':
-				globals.SONYBRAVIA_COM.set_volume_level(command_param)
+				globals.SONYBRAVIA_COM.set_volume_level(message['commandparam'])
 			if message['command'] == 'start_app':
-				globals.SONYBRAVIA_COM.start_app(command_param)
+				globals.SONYBRAVIA_COM.start_app(message['commandparam'])
 			if message['command'] == 'volume_up':
 				globals.SONYBRAVIA_COM.volume_up()
 			if message['command'] == 'volume_down':
 				globals.SONYBRAVIA_COM.volume_down()
 			if message['command'] == 'mute_volume':
-				globals.SONYBRAVIA_COM.mute_volume(command_param)
+				globals.SONYBRAVIA_COM.mute_volume(message['commandparam'])
 			if message['command'] == 'play_content':
-				globals.SONYBRAVIA_COM.play_content(command_param)
+				globals.SONYBRAVIA_COM.play_content(message['commandparam'])
 			if message['command'] == 'media_play':
 				globals.SONYBRAVIA_COM.media_play()
 			if message['command'] == 'media_pause':
@@ -250,7 +223,7 @@ def action_handler(message):
 			if message['command'] == 'media_next_track':
 				globals.SONYBRAVIA_COM.media_next_track()
 			if message['command'] == 'start_app':
-				globals.SONYBRAVIA_COM.start_app(command_param)
+				globals.SONYBRAVIA_COM.start_app(message['commandparam'])
 			if message['command'] == 'ircc':
 				cmdlist=message['commandparam'].split(";")
 				for cmdircc in cmdlist :
@@ -270,7 +243,7 @@ def read_socket(cycle):
 				if message['apikey'] != globals.apikey:
 					logging.error("SOCKET-READ------Invalid apikey from socket : " + str(message))
 					return
-				logging.debug('SOCKET-READ------Received command from jeedom : '+str(message['cmd']))
+				logging.info('SOCKET-READ------Received command from jeedom : '+str(message['cmd']))
 				if message['cmd'] == 'action':
 					logging.debug('SOCKET-READ------Attempt an action on a device')
 					thread.start_new_thread( action_handler, (message,))
@@ -293,6 +266,14 @@ def read_socket(cycle):
 			logging.debug(traceback.format_exc())
 		time.sleep(cycle)
 
+def log_starting(cycle):
+	time.sleep(120)
+	logging.info('GLOBAL------Passage des logs en normal')
+	log = logging.getLogger()
+	for hdlr in log.handlers[:]:
+		log.removeHandler(hdlr)
+	jeedom_utils.set_log_level('error')
+
 def listen():
 	globals.PENDING_ACTION=False
 	jeedom_socket.open()
@@ -302,8 +283,10 @@ def listen():
 	#globals.JEEDOM_COM.send_change_immediate({'learn_mode' : 0,'source' : globals.daemonname});
 	thread.start_new_thread( read_socket, (globals.cycle,))
 	logging.debug('GLOBAL------Read Socket Thread Launched')
+	logging.info('GLOBAL------Logs en debug pour 2 minutes, passage en info ensuite.')
 	while 1:
 		try:
+			thread.start_new_thread( log_starting, (globals.cycle,))
 			globals.SONYBRAVIA.run()
 		except Exception as e:
 			shutdown()
@@ -313,8 +296,11 @@ def handler(signum=None, frame=None):
 	shutdown()
 
 def shutdown():
-	logging.debug("GLOBAL------Shutdown")
-	#signal.signal(signal.SIGTERM, globals.SONYBRAVIA.exit_handler())
+	log = logging.getLogger()
+	for hdlr in log.handlers[:]:
+		log.removeHandler(hdlr)
+	jeedom_utils.set_log_level('debug')
+	logging.info("GLOBAL------Shutdown")
 	logging.debug("Shutdown")
 	logging.debug("Removing PID file " + str(globals.pidfile))
 	try:

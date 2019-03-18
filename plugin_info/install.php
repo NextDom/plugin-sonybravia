@@ -62,7 +62,8 @@ function sonybravia_update() {
 }
 
 function sonybravia_remove() {
-
+    sonybravia::deamon_stop();
+    message::add('sonybravia', 'Désinstallation du plugin.', null, null);
 }
 
 ?>
