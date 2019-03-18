@@ -14,7 +14,6 @@ import signal
 import globals
 import json
 from optparse import OptionParser
-from braviarc import BraviaRC
 from threading import Timer
 import _thread as thread
 try:
@@ -34,12 +33,14 @@ class SonyBravia:
 	def __init__(self):
 		logging.debug("SONYBRAVIA------INIT CONNECTION")
 		if(globals.cookie == '1') or (globals.cookie == 'true'):
+			from braviarc import BraviaRC
 			logging.debug("SONYBRAVIA------COOKIE MODE")
-			globals.SONYBRAVIA_COM = BraviaRC(globals.tvip, None, globals.mac)
+			globals.SONYBRAVIA_COM = BraviaRC(globals.tvip, globals.mac)
 			if globals.SONYBRAVIA_COM.connect(globals.psk, 'Jeedom', 'Jeedom') == False:
 				print ("SONYBRAVIA------PAS D AUTHENTIFICATION RECUPERATION DU PIN")
 				sys.exit()
 		else:
+			from bravia import BraviaRC
 			logging.debug("SONYBRAVIA------PSK MODE")
 			globals.SONYBRAVIA_COM = BraviaRC(globals.tvip, globals.psk, globals.mac)
 
