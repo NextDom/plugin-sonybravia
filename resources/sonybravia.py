@@ -267,7 +267,7 @@ def read_socket(cycle):
 		time.sleep(cycle)
 
 def log_starting(cycle):
-	time.sleep(30)
+	time.sleep(120)
 	logging.info('GLOBAL------Passage des logs en normal')
 	log = logging.getLogger()
 	for hdlr in log.handlers[:]:
@@ -283,6 +283,7 @@ def listen():
 	#globals.JEEDOM_COM.send_change_immediate({'learn_mode' : 0,'source' : globals.daemonname});
 	thread.start_new_thread( read_socket, (globals.cycle,))
 	logging.debug('GLOBAL------Read Socket Thread Launched')
+	logging.info('GLOBAL------Logs en debug pour 2 minutes, passage en info ensuite.')
 	while 1:
 		try:
 			thread.start_new_thread( log_starting, (globals.cycle,))
