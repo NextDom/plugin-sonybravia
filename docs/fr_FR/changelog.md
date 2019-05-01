@@ -2,9 +2,13 @@
 
 Pour toutes demandes : [https://github.com/NextDom/plugin-sonybravia/issues](https://github.com/NextDom/plugin-sonybravia/issues)
 
+### 2.1.5
+
+* BugFix pour le lancement des applications et démarrage de la télé
+
 ### 2.1.4
 
-* Retour sur l'ancienne librairie psk et cookie. 
+* Retour sur l'ancienne librairie psk et cookie.
 
 ### 2.1.3
 

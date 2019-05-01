@@ -23,6 +23,7 @@ import struct
 import urllib.parse
 import urllib.request
 import urllib.error
+import requests
 
 from datetime import datetime
 import time
@@ -40,6 +41,8 @@ class BraviaRC:
         self._mac = mac
         self._cookies = None
         self._commands = []
+        self._content_mapping = []
+        self._app_list = {}
 
     def _jdata_build(self, method, params):
         if params:
@@ -102,7 +105,7 @@ class BraviaRC:
             return True
 
         return False
-        
+
     def is_connected(self):
         if self._cookies is None:
             return False
@@ -232,7 +235,7 @@ class BraviaRC:
         """Get information on program that is shown on TV."""
         return_value = {}
         resp = self.bravia_req_json("sony/avContent", self._jdata_build("getPlayingContentInfo", None))
-        
+
         if resp is not None and not resp.get('error'):
             playing_content_data = resp.get('result')[0]
             return_value['programTitle'] = playing_content_data.get('programTitle')
@@ -283,7 +286,7 @@ class BraviaRC:
         else:
             Domoticz.Debug("[get_volume_info] JSON request error:" + json.dumps(resp, indent=4))
         return None
-        
+
     def get_system_info(self):
         return_value = {}
         resp = self.bravia_req_json("sony/system", self._jdata_build("getSystemInformation", None))
@@ -305,7 +308,7 @@ class BraviaRC:
             return_value['ip'] = network_content_data[0]['ipAddrV4']
             return_value['gateway'] = network_content_data[0]['gateway']
         return return_value
-        
+
     def set_volume_level(self, volume):
         """Set volume level, range 0..100."""
         self.bravia_req_json("sony/audio", self._jdata_build("setAudioVolume", {"target": "speaker",
@@ -314,7 +317,8 @@ class BraviaRC:
     def turn_on(self):
         """Turn the media player on using WOL."""
         self._wakeonlan()
-        
+        self.turn_on_command()
+
     def turn_on_command(self):
         """Turn the media player on using command. Only confirmed working on Android, can be used when WOL is not available."""
         if self.get_power_status() != 'active':
@@ -354,11 +358,11 @@ class BraviaRC:
     def media_pause(self):
         """Send media pause command to media player."""
         self.send_req_ircc(self.get_command_code('Pause'))
-        
+
     def media_tv_pause(self):
         """Send media pause command to TV."""
         self.send_req_ircc(self.get_command_code('TvPause'))
-        
+
     def media_stop(self):
         """Send stopcommand to media player."""
         self.send_req_ircc(self.get_command_code('Stop'))
@@ -370,7 +374,7 @@ class BraviaRC:
     def media_previous_track(self):
         """Send the previous track command."""
         self.send_req_ircc(self.get_command_code('Prev'))
-        
+
     def calc_time(self, *times):
         """Calculate the sum of times, value is returned in HH:MM."""
         totalSecs = 0
@@ -398,10 +402,56 @@ class BraviaRC:
         except TypeError:
             #starttime = datetime.time(datetime.fromtimestamp(time.mktime(time.strptime(startDateTime[:-5], date_format))))
             starttime = datetime.time(datetime(*(time.strptime(startDateTime[:-5], date_format)[0:6])))
-        
         duration = time.strftime('%H:%M:%S', time.gmtime(durationSec))
         endtime = self.calc_time(str(starttime), str(duration))
         starttime = starttime.strftime('%H:%M')
+
         #print(playingtime.seconds, tvplaying['durationSec'])
         perc_playingtime = int(round(((playingtime.seconds / durationSec) * 100),0))
         return str(starttime), str(endtime), str(perc_playingtime)
+
+    def load_app_list(self, log_errors=True):
+        """Get the list of installed apps"""
+        headers = {}
+        original_content_list = []
+
+        try:
+            resp = self.bravia_req_json("sony/appControl",
+                                    self._jdata_build("getApplicationList", None))
+        except Exception as exception_instance:  # pylint: disable=broad-except
+            if log_errors:
+                print("Exception: " + str(exception_instance))
+            else:
+                content = resp.get('result')
+
+        return_value = {}
+        for content_item in resp.get('result')[0]:
+            return_value[content_item['title']] = content_item['uri']
+        self._app_list = resp.get('result')[0]
+        return return_value
+
+    def start_app(self, app_name, log_errors=True):
+        """Start an app by name"""
+        if len(self._app_list) == 0:
+            self.load_app_list(log_errors=log_errors)
+
+        for content in self._app_list:
+            if app_name == content["title"]:
+                return self._start_app(content["uri"],
+                                    log_errors=log_errors)
+
+    def _start_app(self, app_id, log_errors=True):
+        """Start an app by id"""
+        headers = {}
+        if self._psk is not None:
+            headers['X-Auth-PSK'] = self._psk
+
+        try:
+            resp = self.bravia_req_json("sony/appControl",
+                                    self._jdata_build("setActiveApp", {"uri": app_id}))
+        except Exception as exception_instance:  # pylint: disable=broad-except
+            if log_errors:
+                print("Exception: " + str(exception_instance))
+            else:
+                content = response.content
+                return content

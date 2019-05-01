@@ -207,15 +207,14 @@ if (init(_cmd.type) == 'action') {
     tr += '<option value="mute_volume">Mute</option>';
     tr += '<option value="select_source">Changer Source</option>';
     tr += '<option value="start_app">Démarrer une application</option>';
-    
+
     tr += '<option value="play_content">Jouer un fichier</option>';
     tr += '<option value="media_play">Lecture</option>';
     tr += '<option value="media_pause">Pause</option>';
     tr += '<option value="media_previous_track">Précédent</option>';
     tr += '<option value="media_next_track">Suivant</option>';
-    tr += '<option value="start_app">Démarrer une application</option>';
-    
-    
+
+
     tr += '<option value="ircc">RAW</option>';
     tr += '</select></td>';
     tr += '<td>';
@@ -280,11 +279,10 @@ $('#checkbox_psk').change(function() {
         //$( '.gettvpin').attr("disabled","disabled");
         //$( '.startdeamontv').attr("disabled","disabled");
     }
-}); 
+});
 
 $('#checkbox_psk').change(function() {
     if ($( 'input[data-l2key="psk"]').value() == ""){
     $('input[data-l2key="psk"]').value("1234");
 }
 });
-

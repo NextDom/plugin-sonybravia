@@ -133,8 +133,9 @@ class SonyBravia:
 								if tvPlaying['startDateTime'] != '':
 									Donnees["debut"] = tvPlaying['startDateTime']
 									_tmp = globals.SONYBRAVIA_COM.playing_time(tvPlaying['startDateTime'],tvPlaying['durationSec'])
-									#_tmp = self._braviainstance.playing_time(tvPlaying['startDateTime'],tvPlaying['durationSec'])
-									Donnees["debut_p"], Donnees["pourcent_p"],Donnees["fin_p"] = _tmp['start_time'], str(_tmp['media_position_perc']), _tmp['end_time']
+									Donnees["debut_p"] = _tmp[0]
+									Donnees["fin_p"] = _tmp[1]
+									Donnees["pourcent_p"] = _tmp[2]
 								else:
 									Donnees["debut_p"] = ''
 									Donnees["fin_p"] = ''
